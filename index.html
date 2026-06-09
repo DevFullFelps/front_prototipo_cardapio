@@ -1,13 +1,39 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Faça seu Pedido</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        .container { display: flex; gap: 20px; }
+        .coluna-cardapio { flex: 2; background: white; padding: 20px; border-radius: 8px; }
+        .coluna-carrinho { flex: 1; background: #fff3cd; padding: 20px; border-radius: 8px; height: fit-content; }
+        .item-produto { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding: 10px 0; }
+        .btn-add { background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+        .btn-finalizar { background-color: #007bff; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 15px; }
+        .item-carrinho { display: flex; justify-content: space-between; margin-bottom: 10px; }
+    </style>
 </head>
 <body>
-    <div id="container-cardapio">
+
+    <h1>🍔 Lanchonete do Felipe - Faça seu Pedido</h1>
+    
+    <div class="container">
+        <div class="coluna-cardapio">
+            <h2>Cardápio</h2>
+            <div id="cardapio">Carregando produtos...</div>
+        </div>
         
+        <div class="coluna-carrinho">
+            <h2>🛒 Seu Carrinho</h2>
+            <div id="itens-carrinho">
+                <p style="color: #666;">Seu carrinho está vazio.</p>
+            </div>
+            <hr>
+            <h3>Total: R$ <span id="total-carrinho">0.00</span></h3>
+            <button class="btn-finalizar" onclick="enviarPedido()">Finalizar Pedido</button>
+        </div>
     </div>
 
     <script src="script.js"></script>
