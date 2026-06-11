@@ -238,7 +238,13 @@ async function enviarPedidoFinal() {
             if (tipoEnvio === 'entrega') {
                 textoWhats += `• Taxa de Entrega: R$ ${taxaEntrega.toFixed(2)}\n`;
             }
-            textoWhats += `*Total a Pagar: R$ ${valorTotalGeral.toFixed(2)}*`;
+            textoWhats += `*Total a Pagar: R$ ${valorTotalGeral.toFixed(2)}*\n\n`;
+
+            // ==========================================
+            // 💰 INFORMAÇÕES DE PAGAMENTO (PIX)
+            // ==========================================
+            textoWhats += `*🔑 CHAVE PIX:* felipeadr2@gmail.com\n\n`;
+            textoWhats += `_⚠️ Envie seu comprovante para finalizar a compra_`;
 
             // Converte com segurança para URL sem quebrar nada no chat
             const textoCodificado = encodeURIComponent(textoWhats);
