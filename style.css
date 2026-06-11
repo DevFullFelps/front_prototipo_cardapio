@@ -1,0 +1,297 @@
+/* ==========================================================================
+   1. CONFIGURAÇÕES GLOBAIS & PALETA CLEAN
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+}
+
+body {
+    background-color: #e6e6e6; /* Fundo off-white suave */
+    color: #334155; /* Texto cinza-escuro (não é o preto puro que cansa) */
+    padding-bottom: 90px; 
+}
+
+.container {
+    max-width: 600px; 
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* ==========================================================================
+   2. CABEÇALHO SOFISTICADO (TIPO BOUTIQUE)
+   ========================================================================== */
+.header-lanchonete {
+    background-color: #1e293b; /* Azul ardósia profundo, elegante e sóbrio */
+    color: #f8fafc;
+    padding: 45px 20px;
+    text-align: center;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+}
+
+.header-lanchonete h1 {
+    font-size: 26px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+.status-badge {
+    background-color: rgba(255, 255, 255, 0.1);
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.status-badge i {
+    color: #10b981; /* Verde esmeralda suave para o "Aberto" */
+    font-size: 9px;
+    margin-right: 6px;
+}
+
+/* ==========================================================================
+   3. SEÇÕES DE CATEGORIAS
+   ========================================================================== */
+.categoria-section {
+    margin-top: 28px;
+}
+
+.categoria-section h2 {
+    font-size: 16px;
+    color: #64748b; /* Texto de apoio cinza-médio */
+    text-transform: uppercase; /* Deixa o título discreto e elegante */
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.grid-produtos {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* ==========================================================================
+   4. CARDS DOS PRODUTOS MÍNIMOS & LIMPOS
+   ========================================================================== */
+.card-produto {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border: 1px solid #edf2f7; /* Borda bem fina para dar estrutura sem carregar */
+    transition: all 0.2s ease;
+}
+
+.card-produto:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); /* Sombra quase invisível */
+}
+
+/* FOTO DO PRODUTO */
+.produto-foto-wrapper {
+    width: 70px;
+    height: 70px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background-color: #f1f5f9;
+}
+
+.produto-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.98); /* Suaviza fotos muito estouradas */
+}
+
+/* INFORMAÇÕES DO PRODUTO */
+.produto-info {
+    flex-grow: 1;
+}
+
+.produto-info h3 {
+    font-size: 16px;
+    color: #1e293b;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.produto-preco {
+    color: #475569; /* Cinza sóbrio para o preço não gritar */
+    font-weight: 600;
+    font-size: 15px;
+}
+
+/* BOTÃO DE ADICIONAR (+) DISCRETO */
+.btn-adicionar {
+    background-color: #b9ccdf; /* Fundo cinza bem clarinho */
+    color: #283444;
+    border: none;
+    border-radius: 8px; /* Quadrado com cantos levemente arredondados, mais moderno */
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.btn-adicionar:hover {
+    background-color: #cbd5e1; /* Escurece de leve no hover */
+    color: #1e293b;
+}
+
+/* ==========================================================================
+   5. BARRA DO CARRINHO (ESTILO NOTIFICAÇÃO CLEAN)
+   ========================================================================== */
+.barra-carrinho {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 500px;
+    background-color: #1e293b; /* Casando com o Header */
+    border-radius: 12px;
+    padding: 12px 18px;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15);
+    z-index: 999;
+}
+
+.carrinho-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #f8fafc;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+#qtd-itens-carrinho {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #cbd5e1;
+}
+
+.barra-carrinho button {
+    background-color: #10b981; /* Verde sálvia/esmeralda ativo e calmo */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s ease;
+}
+
+.barra-carrinho button:hover {
+    background-color: #059669;
+}
+
+/* AUXILIAR */
+.escondido {
+    display: none !important;
+}
+
+/* ==========================================================================
+   6. MODAL DE ENTREGA (CLEAN)
+   ========================================================================== */
+.modal-container {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(15, 23, 42, 0.6); /* Fundo escurecido suave */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content h3 {
+    font-size: 18px;
+    color: #1e293b;
+    margin-bottom: 6px;
+}
+
+.modal-content .form-group {
+    margin-bottom: 14px;
+}
+
+.modal-content label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 4px;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+}
+
+.modal-content input:focus {
+    border-color: #10b981;
+}
+
+.modal-botoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-cancelar {
+    background: #f1f5f9;
+    color: #475569;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-confirmar-entrega {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}

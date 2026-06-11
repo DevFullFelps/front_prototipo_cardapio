@@ -1,41 +1,125 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faça seu Pedido</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
-        .container { display: flex; gap: 20px; }
-        .coluna-cardapio { flex: 2; background: white; padding: 20px; border-radius: 8px; }
-        .coluna-carrinho { flex: 1; background: #fff3cd; padding: 20px; border-radius: 8px; height: fit-content; }
-        .item-produto { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding: 10px 0; }
-        .btn-add { background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
-        .btn-finalizar { background-color: #007bff; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 15px; }
-        .item-carrinho { display: flex; justify-content: space-between; margin-bottom: 10px; }
-    </style>
+    <title>Cardápio Digital</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
 
-    <h1>🍔 Lanchonete do Felipe - Faça seu Pedido</h1>
-    
-    <div class="container">
-        <div class="coluna-cardapio">
-            <h2>Cardápio</h2>
-            <div id="cardapio">Carregando produtos...</div>
+    <header class="header-lanchonete">
+        <div class="header-content">
+            <h1 id="nome-lanchonete">Carregando...</h1>
+            <p class="status-badge"><i class="fa-solid fa-circle"></i> Aberto</p>
         </div>
-        
-        <div class="coluna-carrinho">
-            <h2>🛒 Seu Carrinho</h2>
-            <div id="itens-carrinho">
-                <p style="color: #666;">Seu carrinho está vazio.</p>
+    </header>
+
+    <main class="container">
+
+        <section class="categoria-section">
+            <h2><i class="fa-solid fa-hamburger"></i> Lanches Hambúrgueres</h2>
+            <div id="lista-lanches" class="grid-produtos">
             </div>
-            <hr>
-            <h3>Total: R$ <span id="total-carrinho">0.00</span></h3>
-            <button class="btn-finalizar" onclick="enviarPedido()">Finalizar Pedido</button>
+        </section>
+
+        <section class="categoria-section">
+            <h2><i class="fa-solid fa-glass-water"></i> Bebidas Geladas</h2>
+            <div id="lista-bebidas" class="grid-produtos">
+            </div>
+        </section>
+
+    </main>
+
+    <div id="barra-carrinho" class="barra-carrinho escondido">
+        <div class="carrinho-content">
+            <span id="qtd-itens-carrinho">0 itens</span>
+            <button id="btn-ver-carrinho" onclick="abrirModalCarrinho()">
+                Ver Carrinho <span id="total-carrinho">R$ 0,00</span>
+            </button>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <div id="modal-entrega" class="modal-container escondido">
+        <div class="modal-content">
+            <h3><i class="fa-solid fa-shopping-basket"></i> Seu Carrinho</h3>
+
+            <div id="itens-modal-carrinho" class="carrinho-itens-lista">
+            </div>
+
+            <div class="totais-modal-box"
+                style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #e2e8f0; font-size: 14px;">
+                <div style="display: flex; justify-content: space-between; color: #64748b; margin-bottom: 4px;">
+                    <span>Subtotal itens:</span>
+                    <span id="total-modal-itens">R$ 0,00</span>
+                </div>
+
+                <div id="linha-taxa-entrega" class="escondido"
+                    style="display: flex; justify-content: space-between; color: #e63946; margin-bottom: 6px; font-weight: 500;">
+                    <span>Taxa de entrega:</span>
+                    <span>R$ 7,00</span>
+                </div>
+
+                <div
+                    style="display: flex; justify-content: space-between; font-size: 16px; color: #1e293b; font-weight: 700; margin-top: 6px; border-top: 1px dashed #e2e8f0; padding-top: 6px;">
+                    <span>Total Geral:</span>
+                    <span id="total-modal-geral">R$ 0,00</span>
+                </div>
+            </div>
+
+            <div class="opcao-envio-container">
+                <label>Como deseja receber?</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="tipo_envio" value="retirada" checked
+                            onchange="alternarCamposEndereco()">
+                        <span><i class="fa-solid fa-store"></i> Retirada</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="tipo_envio" value="entrega" onchange="alternarCamposEndereco()">
+                        <span><i class="fa-solid fa-truck"></i> Entrega</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="campos-endereco" class="escondido">
+                <h4
+                    style="font-size: 14px; color: #475569; margin: 15px 0 8px 0; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+                    Endereço de Entrega</h4>
+
+                <div class="form-group-row">
+                    <div class="form-group">
+                        <label>Rua</label>
+                        <input type="text" id="cliente-rua" placeholder="Ex: Rua das Flores">
+                    </div>
+                    <div class="form-group" style="width: 30%;">
+                        <label>Número</label>
+                        <input type="text" id="cliente-numero" placeholder="123">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Bairro</label>
+                    <input type="text" id="cliente-bairro" placeholder="Ex: Centro">
+                </div>
+
+                <div class="form-group">
+                    <label>Observação (Opcional)</label>
+                    <input type="text" id="cliente-obs" placeholder="Ex: Ap 202, Bloco B / Sem salada">
+                </div>
+            </div>
+
+            <div class="modal-botoes">
+                <button class="btn-cancelar" onclick="fecharModalEntrega()">Voltar</button>
+                <button class="btn-confirmar-entrega" onclick="enviarPedidoFinal()">Confirmar e Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
 </body>
+
 </html>

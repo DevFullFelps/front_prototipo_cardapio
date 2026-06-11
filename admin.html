@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Dono - Cadastro de Produtos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Estilo Alinhado com o Padrão Comercial */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            padding: 20px;
+        }
+
+        .admin-container {
+            max-width: 500px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #1d3557;
+            text-align: center;
+        }
+
+        h1 i {
+            color: #e63946;
+            margin-right: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #4a4a4a;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #e63946;
+        }
+
+        .btn-salvar {
+            width: 100%;
+            background-color: #e63946;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-salvar:hover {
+            background-color: #d90429;
+        }
+
+        .voltar-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #1d3557;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .voltar-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-container">
+        <h1><i class="fa-solid fa-utensils"></i> Cadastrar Novo Item</h1>
+
+        <form id="form-cadastro">
+            <div class="form-group">
+                <label for="nome">Nome do Produto</label>
+                <input type="text" id="nome" placeholder="Ex: X-Salada Especial" required>
+            </div>
+
+            <div class="form-group">
+                <label for="preco">Preço (R$)</label>
+                <input type="number" id="preco" step="0.01" placeholder="Ex: 24.90" required>
+            </div>
+
+            <div class="form-group">
+                <label for="categoria">Categoria</label>
+                <select id="categoria" required>
+                    <option value="lanche">Lanche</option>
+                    <option value="bebida">Bebida</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="imagem_file">Foto do Produto (Selecionar do Computador)</label>
+                <input type="file" id="imagem_file" accept="image/*">
+            </div>
+
+            <button type="submit" class="btn-salvar">Salvar no Cardápio</button>
+        </form>
+
+        <a href="index.html" class="voltar-link"><i class="fa-solid fa-arrow-left"></i> Voltar para o Cardápio</a>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8000";
+        const EMPRESA_ID = 1; // ID fixo da Barraca do Siqueira por enquanto
+
+        document.getElementById('form-cadastro').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Impede a página de recarregar
+
+            const arquivoImagem = document.getElementById('imagem_file').files[0];
+
+            const novoProduto = {
+                nome: document.getElementById('nome').value,
+                preco: parseFloat(document.getElementById('preco').value),
+                categoria: document.getElementById('categoria').value,
+                // Se o dono escolheu um arquivo, salvamos a rota local dele, senão fica null
+                imagem_url: arquivoImagem ? `imagens/${arquivoImagem.name}` : null,
+                empresa_id: EMPRESA_ID
+            };
+
+            try {
+                // Envia os dados via POST para o seu Back-end em Python
+                const resposta = await fetch(`${API_URL}/produtos`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(novoProduto)
+                });
+
+                if (resposta.ok) {
+                    alert("🎉 Produto cadastrado com sucesso!");
+                    document.getElementById('form-cadastro').reset(); // Limpa o formulário
+                } else {
+                    const erroDados = await resposta.json();
+                    alert("Erro ao cadastrar: " + (erroDados.detail || "Verifique os dados."));
+                }
+            } catch (erro) {
+                console.error("Erro na requisição:", erro);
+                alert("Não foi possível conectar com o servidor Python.");
+            }
+        });
+    </script>
+</body>
+
+</html>
