@@ -14,7 +14,7 @@ async function carregarCardapio() {
         const resposta = await fetch(`${API_URL}/produtos?empresa_id=${EMPRESA_ID}`);
         const produtos = await resposta.json();
 
-        document.getElementById('nome-lanchonete').innerText = "Barraca do Siqueira";
+        document.getElementById('nome-lanchonete').innerText = "Barraca do Lanche";
 
         const containerLanches = document.getElementById('lista-lanches');
         const containerBebidas = document.getElementById('lista-bebidas');
