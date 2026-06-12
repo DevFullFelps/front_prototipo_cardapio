@@ -252,14 +252,18 @@ async function enviarPedidoFinal() {
             // Limpeza geral de estado e inputs
             carrinho = [];
             atualizarBarraCarrinho();
-            document.getElementById('cliente-rua').value = "";
-            document.getElementById('cliente-numero').value = "";
-            document.getElementById('cliente-bairro').value = "";
-            document.getElementById('cliente-obs').value = "";
+            
+            // Tratamento preventivo caso os campos não existam na árvore DOM na hora de limpar
+            if(document.getElementById('cliente-rua')) document.getElementById('cliente-rua').value = "";
+            if(document.getElementById('cliente-numero')) document.getElementById('cliente-numero').value = "";
+            if(document.getElementById('cliente-bairro')) document.getElementById('cliente-bairro').value = "";
+            if(document.getElementById('cliente-obs')) document.getElementById('cliente-obs').value = "";
 
-            // Abre o WhatsApp limpo
-            const urlFinal = `https://wa.me/${meuNumero}?text=${textoCodificado}`;
-            window.open(urlFinal, '_blank');
+            // URL Universal que dispara o App do celular ou o Web no PC
+            const urlFinal = `https://api.whatsapp.com/send?phone=${meuNumero}&text=${textoCodificado}`;
+            
+            // Redireciona na mesma aba eliminando o bloqueio de pop-up do mobile
+            window.location.href = urlFinal;
 
         } else {
             alert("Erro ao processar o pedido no servidor Python.");
