@@ -214,7 +214,7 @@ async function enviarPedidoFinal() {
             // ==========================================
             const meuNumero = "5547984318419";
 
-            let textoWhats = `*Novo Pedido - Barraca do Siqueira (Pedido #${resultado.pedido_id})*\n\n`;
+            let textoWhats = `*Novo Pedido - Barraca do Lanche (Pedido #${resultado.pedido_id})*\n\n`;
 
             textoWhats += `*🛒 ITENS DO PEDIDO:*\n`;
             carrinho.forEach(item => {
