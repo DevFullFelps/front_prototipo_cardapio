@@ -232,8 +232,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="imagem_file">Foto do Produto (Do Computador)</label>
-                    <input type="file" id="imagem_file" accept="image/*">
+                    <label for="imagem_url">Link da Foto do Produto (Da Internet)</label>
+                    <input type="url" id="imagem_url" placeholder="Ex: https://site.com/foto-do-bolo.jpg">
                 </div>
 
                 <button type="submit" class="btn-salvar">Salvar no Cardápio</button>
@@ -297,30 +297,26 @@
         }
 
         // ==========================================
-        // 2. CADASTRAR PRODUTO (POST)
+        // 2. CADASTRAR PRODUTO (POST com URL da Internet)
         // ==========================================
         document.getElementById('form-cadastro').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const arquivoImagem = document.getElementById('imagem_file').files[0];
+            const urlDigitada = document.getElementById('imagem_url').value.trim();
 
-            // Criamos um FormData em vez de um objeto JSON comum
-            const formData = new FormData();
-            formData.append('nome', document.getElementById('nome').value);
-            formData.append('preco', parseFloat(document.getElementById('preco').value));
-            formData.append('categoria', document.getElementById('categoria').value);
-            formData.append('empresa_id', EMPRESA_ID);
-
-            // Se o usuário escolheu uma foto, adiciona o arquivo real no envio
-            if (arquivoImagem) {
-                formData.append('file', arquivoImagem);
-            }
+            const novoProduto = {
+                nome: document.getElementById('nome').value,
+                preco: parseFloat(document.getElementById('preco').value),
+                categoria: document.getElementById('categoria').value,
+                imagem_url: urlDigitada ? urlDigitada : null,
+                empresa_id: EMPRESA_ID
+            };
 
             try {
-                // ATENÇÃO: Ao usar FormData, NÃO se passa o "Content-Type" no header. O navegador faz isso sozinho.
                 const resposta = await fetch(`${API_URL}/produtos`, {
                     method: "POST",
-                    body: formData
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(novoProduto)
                 });
 
                 if (resposta.ok) {
@@ -360,7 +356,7 @@
                 });
 
                 if (resposta.ok) {
-                    alert("🔄 Produto atualizado com sucesso!");
+                    alert("🔄 Produto updated com sucesso!");
                     buscarProdutosDoCardapio();
                 } else {
                     alert("Erro ao salvar alterações no servidor.");
@@ -383,7 +379,6 @@
                 });
 
                 if (resposta.ok) {
-                    // Remove o elemento visual diretamente da tela sem precisar dar reload
                     document.getElementById(`produto-card-${id}`).remove();
                     alert("🗑️ Item removido!");
                 } else {
