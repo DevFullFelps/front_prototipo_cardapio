@@ -30,7 +30,8 @@
             flex-wrap: wrap;
         }
 
-        .coluna-cadastro, .coluna-lista {
+        .coluna-cadastro,
+        .coluna-lista {
             background: white;
             padding: 30px;
             border-radius: 16px;
@@ -41,7 +42,8 @@
         }
 
         /* Títulos */
-        h1, h2 {
+        h1,
+        h2 {
             font-size: 20px;
             margin-bottom: 20px;
             color: #1e293b;
@@ -51,7 +53,8 @@
             gap: 10px;
         }
 
-        h1 i, h2 i {
+        h1 i,
+        h2 i {
             color: #10b981;
         }
 
@@ -68,7 +71,8 @@
             color: #475569;
         }
 
-        input, select {
+        input,
+        select {
             width: 100%;
             padding: 10px 14px;
             border: 1px solid #cbd5e1;
@@ -79,7 +83,8 @@
             color: #334155;
         }
 
-        input:focus, select:focus {
+        input:focus,
+        select:focus {
             border-color: #10b981;
         }
 
@@ -135,8 +140,15 @@
             font-size: 13px;
         }
 
-        .input-lista-nome { flex: 2; min-width: 120px; }
-        .input-lista-preco { flex: 1; min-width: 70px; }
+        .input-lista-nome {
+            flex: 2;
+            min-width: 120px;
+        }
+
+        .input-lista-preco {
+            flex: 1;
+            min-width: 70px;
+        }
 
         /* Botões de Ação */
         .acoes-box {
@@ -157,11 +169,25 @@
             transition: 0.2s;
         }
 
-        .btn-atualizar { background-color: #e2f5ee; color: #10b981; }
-        .btn-atualizar:hover { background-color: #10b981; color: white; }
+        .btn-atualizar {
+            background-color: #e2f5ee;
+            color: #10b981;
+        }
 
-        .btn-deletar { background-color: #fde8e8; color: #ef4444; }
-        .btn-deletar:hover { background-color: #ef4444; color: white; }
+        .btn-atualizar:hover {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .btn-deletar {
+            background-color: #fde8e8;
+            color: #ef4444;
+        }
+
+        .btn-deletar:hover {
+            background-color: #ef4444;
+            color: white;
+        }
 
         .voltar-link {
             display: block;
@@ -173,14 +199,16 @@
             width: 100%;
         }
 
-        .voltar-link:hover { text-decoration: underline; }
+        .voltar-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 
 <body>
 
     <div class="dashboard-layout">
-        
+
         <div class="coluna-cadastro">
             <h1><i class="fa-solid fa-plus-circle"></i> Novo Item</h1>
 
@@ -214,9 +242,9 @@
 
         <div class="coluna-lista">
             <h2><i class="fa-solid fa-sliders"></i> Itens no Cardápio</h2>
-            
+
             <div id="lista-produtos-admin" class="produtos-gerenciador-lista">
-                </div>
+            </div>
         </div>
 
         <a href="index.html" class="voltar-link"><i class="fa-solid fa-arrow-left"></i> Voltar para o Cardápio</a>
@@ -236,7 +264,7 @@
             try {
                 const resposta = await fetch(`${API_URL}/produtos?empresa_id=${EMPRESA_ID}`);
                 const produtos = await resposta.json();
-                
+
                 container.innerHTML = "";
 
                 if (produtos.length === 0) {
@@ -273,27 +301,32 @@
         // ==========================================
         document.getElementById('form-cadastro').addEventListener('submit', async (e) => {
             e.preventDefault();
+
             const arquivoImagem = document.getElementById('imagem_file').files[0];
 
-            const novoProduto = {
-                nome: document.getElementById('nome').value,
-                preco: parseFloat(document.getElementById('preco').value),
-                categoria: document.getElementById('categoria').value,
-                imagem_url: arquivoImagem ? `imagens/${arquivoImagem.name}` : null,
-                empresa_id: EMPRESA_ID
-            };
+            // Criamos um FormData em vez de um objeto JSON comum
+            const formData = new FormData();
+            formData.append('nome', document.getElementById('nome').value);
+            formData.append('preco', parseFloat(document.getElementById('preco').value));
+            formData.append('categoria', document.getElementById('categoria').value);
+            formData.append('empresa_id', EMPRESA_ID);
+
+            // Se o usuário escolheu uma foto, adiciona o arquivo real no envio
+            if (arquivoImagem) {
+                formData.append('file', arquivoImagem);
+            }
 
             try {
+                // ATENÇÃO: Ao usar FormData, NÃO se passa o "Content-Type" no header. O navegador faz isso sozinho.
                 const resposta = await fetch(`${API_URL}/produtos`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(novoProduto)
+                    body: formData
                 });
 
                 if (resposta.ok) {
                     alert("🎉 Produto cadastrado com sucesso!");
                     document.getElementById('form-cadastro').reset();
-                    buscarProdutosDoCardapio(); // Recarrega a listagem ao lado na hora!
+                    buscarProdutosDoCardapio();
                 } else {
                     alert("Erro ao cadastrar produto.");
                 }
