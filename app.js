@@ -1,7 +1,7 @@
 // ==========================================================================
 // CONFIGURAÇÕES GLOBAIS
 // ==========================================================================
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://prototipo-cardapio-api.onrender.com";
 const EMPRESA_ID = 1;
 
 let carrinho = [];
