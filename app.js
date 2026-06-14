@@ -287,9 +287,15 @@ async function enviarPedidoFinal() {
     const tipoEnvio = document.querySelector('input[name="tipo_envio"]:checked').value;
     const formaPagamento = document.getElementById('forma-pagamento').value;
     let troco = document.getElementById('cliente-troco').value.trim();
+    let obsGeral = "";
+
+    // Tenta pegar observação geral se existir no HTML (não quebra se não existir)
+    const campoObsGeral = document.getElementById("cliente-obs");
+    if (campoObsGeral) {
+        obsGeral = campoObsGeral.value.trim();
+    }
 
     let rua = "", numero = "", bairro = "";
-    let obsGeral = document.getElementById('cliente-obs').value.trim();
 
     if (tipoEnvio === 'entrega') {
         rua = document.getElementById('cliente-rua').value.trim();
@@ -306,27 +312,24 @@ async function enviarPedidoFinal() {
     const taxaEntrega = tipoEnvio === 'entrega' ? 7.00 : 0.00;
     const valorTotalGeral = valorItens + taxaEntrega;
 
-    const dadosPedido = carrinho.map(item => ({
-        produto_id: item.produto_id,
-        quantidade: item.quantidade
-    }));
+    // Payload CORRETO para o backend atual (sem os campos extras ainda)
     const payload = {
-        itens: carrinho.map(item => ({
-            produto_id: item.id,
-            quantidade: item.qtd,
-            observacao: item.observacao || "",
-        })),
-        observacao_geral: document.getElementById("obs-geral").value || "",
-        metodo_pagamento: metodoPagamento,
-        tipo_entrega: tipoEntrega,
-        // total pode ser calculado ou envie também se preferir
+        itens_input: carrinho.map(item => ({
+            produto_id: item.produto_id,
+            quantidade: item.quantidade
+        }))
     };
+
+    // Se quiser guardar no banco futuramente, adicione aqui:
+    // payload.observacao_geral = obsGeral;
+    // payload.metodo_pagamento = formaPagamento === 'Pix' ? 'pix' : formaPagamento === 'Cartão (Levar maquininha)' ? 'cartao' : 'dinheiro';
+    // payload.tipo_entrega = tipoEnvio === 'entrega' ? 'entrega' : 'retirada';
 
     try {
         const response = await fetch(`${API_URL}/pedidos?empresa_id=${EMPRESA_ID}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(dadosPedido)
+            body: JSON.stringify(payload)
         });
 
         if (response.ok) {
@@ -334,7 +337,7 @@ async function enviarPedidoFinal() {
             fecharModalEntrega();
 
             // ==========================================
-            // RELATÓRIO DO WHATSAPP APRIMORADO
+            // WHATSAPP
             // ==========================================
             const meuNumero = "5547984318419";
             let textoWhats = `*Novo Pedido - Barraca do Lanche (Pedido #${resultado.pedido_id})*\n\n`;
@@ -372,22 +375,25 @@ async function enviarPedidoFinal() {
 
             const textoCodificado = encodeURIComponent(textoWhats);
 
-            // LIMPEZA DO CARRINHO E DA MEMÓRIA
+            // LIMPEZA
             carrinho = [];
             localStorage.removeItem(`carrinho_lanchonete_${EMPRESA_ID}`);
             atualizarBarraCarrinho();
 
             // Limpa os inputs
-            document.querySelectorAll('input[type="text"]').forEach(input => input.value = '');
+            const inputsLimpar = document.querySelectorAll('input[type="text"], input[type="number"]');
+            inputsLimpar.forEach(input => input.value = '');
 
             window.location.href = `https://api.whatsapp.com/send?phone=${meuNumero}&text=${textoCodificado}`;
 
         } else {
-            alert("Erro ao processar o pedido.");
+            alert("Erro ao processar pedido. Tente novamente.");
+            const errText = await response.text();
+            console.error("Erro backend:", response.status, errText);
         }
     } catch (erro) {
-        console.error(erro);
-        alert("Erro na conexão com o servidor.");
+        console.error("Erro conexão:", erro);
+        alert("Erro na conexão com o servidor. Verifique se o backend está online.");
     }
 }
 
