@@ -314,16 +314,15 @@ async function enviarPedidoFinal() {
 
     // Payload CORRETO para o backend atual (sem os campos extras ainda)
     const payload = {
-        itens_input: carrinho.map(item => ({
+        itens: carrinho.map(item => ({
             produto_id: item.produto_id,
-            quantidade: item.quantidade
-        }))
+            quantidade: item.quantidade,
+            observacao: item.observacao_item || null // Envia se tiver, ou nulo
+        })),
+        observacao_geral: obsGeral || null,
+        metodo_pagamento: formaPagamento,
+        tipo_entrega: tipoEnvio
     };
-
-    // Se quiser guardar no banco futuramente, adicione aqui:
-    // payload.observacao_geral = obsGeral;
-    // payload.metodo_pagamento = formaPagamento === 'Pix' ? 'pix' : formaPagamento === 'Cartão (Levar maquininha)' ? 'cartao' : 'dinheiro';
-    // payload.tipo_entrega = tipoEnvio === 'entrega' ? 'entrega' : 'retirada';
 
     try {
         const response = await fetch(`${API_URL}/pedidos?empresa_id=${EMPRESA_ID}`, {
@@ -332,70 +331,82 @@ async function enviarPedidoFinal() {
             body: JSON.stringify(payload)
         });
 
-        if (response.ok) {
-            const resultado = await response.json();
-            fecharModalEntrega();
+        // Se quiser guardar no banco futuramente, adicione aqui:
+        // payload.observacao_geral = obsGeral;
+        // payload.metodo_pagamento = formaPagamento === 'Pix' ? 'pix' : formaPagamento === 'Cartão (Levar maquininha)' ? 'cartao' : 'dinheiro';
+        // payload.tipo_entrega = tipoEnvio === 'entrega' ? 'entrega' : 'retirada';
 
-            // ==========================================
-            // WHATSAPP
-            // ==========================================
-            const meuNumero = "5547984318419";
-            let textoWhats = `*Novo Pedido - Barraca do Lanche (Pedido #${resultado.pedido_id})*\n\n`;
-
-            textoWhats += `*🛒 ITENS DO PEDIDO:*\n`;
-            carrinho.forEach(item => {
-                textoWhats += `• ${item.quantidade}x ${item.nome} (R$ ${(item.preco * item.quantidade).toFixed(2)})\n`;
-                if (item.observacao_item) {
-                    textoWhats += `  _⚠️ Obs: ${item.observacao_item}_\n`;
-                }
+        try {
+            const response = await fetch(`${API_URL}/pedidos?empresa_id=${EMPRESA_ID}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
             });
 
-            textoWhats += `\n*📦 FORMA DE ENVIO:* ${tipoEnvio === 'entrega' ? '🚚 Entrega' : '🏪 Retirada'}\n`;
-            if (tipoEnvio === 'entrega') {
-                textoWhats += `*📍 ENDEREÇO:*\n${rua}, Nº ${numero} - ${bairro}\n`;
-            }
+            if (response.ok) {
+                const resultado = await response.json();
+                fecharModalEntrega();
 
-            if (obsGeral) textoWhats += `\n*📝 OBS GERAL:* ${obsGeral}\n`;
+                // ==========================================
+                // WHATSAPP
+                // ==========================================
+                const meuNumero = "5547984318419";
+                let textoWhats = `*Novo Pedido - Barraca do Lanche (Pedido #${resultado.pedido_id})*\n\n`;
 
-            textoWhats += `\n*💵 FORMA DE PAGAMENTO:* ${formaPagamento}\n`;
-            if (formaPagamento === 'Dinheiro' && troco) {
-                textoWhats += `*🔄 Troco para:* ${troco}\n`;
-            }
+                textoWhats += `*🛒 ITENS DO PEDIDO:*\n`;
+                carrinho.forEach(item => {
+                    textoWhats += `• ${item.quantidade}x ${item.nome} (R$ ${(item.preco * item.quantidade).toFixed(2)})\n`;
+                    if (item.observacao_item) {
+                        textoWhats += `  _⚠️ Obs: ${item.observacao_item}_\n`;
+                    }
+                });
 
-            textoWhats += `\n-------------------------\n`;
-            textoWhats += `• Subtotal: R$ ${valorItens.toFixed(2)}\n`;
-            if (tipoEnvio === 'entrega') textoWhats += `• Entrega: R$ ${taxaEntrega.toFixed(2)}\n`;
-            textoWhats += `*Total a Pagar: R$ ${valorTotalGeral.toFixed(2)}*\n\n`;
+                textoWhats += `\n*📦 FORMA DE ENVIO:* ${tipoEnvio === 'entrega' ? '🚚 Entrega' : '🏪 Retirada'}\n`;
+                if (tipoEnvio === 'entrega') {
+                    textoWhats += `*📍 ENDEREÇO:*\n${rua}, Nº ${numero} - ${bairro}\n`;
+                }
 
-            if (formaPagamento === 'Pix') {
-                textoWhats += `*🔑 CHAVE PIX:* felipeadr2@gmail.com\n_Envie seu comprovante logo abaixo!_`;
+                if (obsGeral) textoWhats += `\n*📝 OBS GERAL:* ${obsGeral}\n`;
+
+                textoWhats += `\n*💵 FORMA DE PAGAMENTO:* ${formaPagamento}\n`;
+                if (formaPagamento === 'Dinheiro' && troco) {
+                    textoWhats += `*🔄 Troco para:* ${troco}\n`;
+                }
+
+                textoWhats += `\n-------------------------\n`;
+                textoWhats += `• Subtotal: R$ ${valorItens.toFixed(2)}\n`;
+                if (tipoEnvio === 'entrega') textoWhats += `• Entrega: R$ ${taxaEntrega.toFixed(2)}\n`;
+                textoWhats += `*Total a Pagar: R$ ${valorTotalGeral.toFixed(2)}*\n\n`;
+
+                if (formaPagamento === 'Pix') {
+                    textoWhats += `*🔑 CHAVE PIX:* felipeadr2@gmail.com\n_Envie seu comprovante logo abaixo!_`;
+                } else {
+                    textoWhats += `_Aguardando confirmação do restaurante._`;
+                }
+
+                const textoCodificado = encodeURIComponent(textoWhats);
+
+                // LIMPEZA
+                carrinho = [];
+                localStorage.removeItem(`carrinho_lanchonete_${EMPRESA_ID}`);
+                atualizarBarraCarrinho();
+
+                // Limpa os inputs
+                const inputsLimpar = document.querySelectorAll('input[type="text"], input[type="number"]');
+                inputsLimpar.forEach(input => input.value = '');
+
+                window.location.href = `https://api.whatsapp.com/send?phone=${meuNumero}&text=${textoCodificado}`;
+
             } else {
-                textoWhats += `_Aguardando confirmação do restaurante._`;
+                alert("Erro ao processar pedido. Tente novamente.");
+                const errText = await response.text();
+                console.error("Erro backend:", response.status, errText);
             }
-
-            const textoCodificado = encodeURIComponent(textoWhats);
-
-            // LIMPEZA
-            carrinho = [];
-            localStorage.removeItem(`carrinho_lanchonete_${EMPRESA_ID}`);
-            atualizarBarraCarrinho();
-
-            // Limpa os inputs
-            const inputsLimpar = document.querySelectorAll('input[type="text"], input[type="number"]');
-            inputsLimpar.forEach(input => input.value = '');
-
-            window.location.href = `https://api.whatsapp.com/send?phone=${meuNumero}&text=${textoCodificado}`;
-
-        } else {
-            alert("Erro ao processar pedido. Tente novamente.");
-            const errText = await response.text();
-            console.error("Erro backend:", response.status, errText);
+        } catch (erro) {
+            console.error("Erro conexão:", erro);
+            alert("Erro na conexão com o servidor. Verifique se o backend está online.");
         }
-    } catch (erro) {
-        console.error("Erro conexão:", erro);
-        alert("Erro na conexão com o servidor. Verifique se o backend está online.");
     }
-}
 
 // Inicializa a aplicação
 carregarCardapio();
