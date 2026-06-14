@@ -1,82 +1,186 @@
 // ==========================================================================
-// CONFIGURAÇÕES GLOBAIS
+// CONFIGURAÇÕES GLOBAIS DA LOJA E DO SISTEMA
 // ==========================================================================
 const API_URL = "https://prototipo-cardapio-api.onrender.com";
 const EMPRESA_ID = 1;
 
-let carrinho = [];
+// Configuração de Horário do Cliente
+const CONFIG_LOJA = {
+    abre: "10:00",
+    fecha: "23:59" // Formato 24h
+};
+
+// Carrega o carrinho salvo no celular do cliente (LocalStorage)
+let carrinho = JSON.parse(localStorage.getItem(`carrinho_lanchonete_${EMPRESA_ID}`)) || [];
+
+// Variáveis para o modal de observação do item
+let itemTemporario = null;
 
 // ==========================================
-// 1. CARREGAR DADOS DA LANCHONETE E PRODUTOS
+// 1. LÓGICA DE FUNCIONAMENTO (STATUS DA LOJA)
+// ==========================================
+function lojaEstaAberta() {
+    const agora = new Date();
+    const minutosAtuais = agora.getHours() * 60 + agora.getMinutes();
+    
+    const [hAbre, mAbre] = CONFIG_LOJA.abre.split(':').map(Number);
+    const minAbre = hAbre * 60 + mAbre;
+    
+    const [hFecha, mFecha] = CONFIG_LOJA.fecha.split(':').map(Number);
+    const minFecha = hFecha * 60 + mFecha;
+
+    if (minAbre < minFecha) {
+        // Ex: 10:00 às 22:00
+        return minutosAtuais >= minAbre && minutosAtuais <= minFecha;
+    } else {
+        // Ex: 18:00 às 02:00 (Vira a madrugada)
+        return minutosAtuais >= minAbre || minutosAtuais <= minFecha;
+    }
+}
+
+function atualizarStatusLoja() {
+    const badge = document.getElementById('badge-status');
+    if (lojaEstaAberta()) {
+        badge.innerHTML = `<i class="fa-solid fa-circle"></i> Aberto`;
+        badge.classList.remove('status-fechado');
+    } else {
+        badge.innerHTML = `<i class="fa-solid fa-circle"></i> Fechado`;
+        badge.classList.add('status-fechado');
+    }
+}
+
+// ==========================================
+// 2. CARREGAR DADOS DA LANCHONETE E PRODUTOS (DINÂMICO)
 // ==========================================
 async function carregarCardapio() {
+    atualizarStatusLoja();
+    atualizarBarraCarrinho(); // Garante que mostre o carrinho se já houver algo salvo
+
     try {
         const resposta = await fetch(`${API_URL}/produtos?empresa_id=${EMPRESA_ID}`);
         const produtos = await resposta.json();
 
         document.getElementById('nome-lanchonete').innerText = "Barraca do Lanche";
 
-        const containerLanches = document.getElementById('lista-lanches');
-        const containerBebidas = document.getElementById('lista-bebidas');
+        // Remove o efeito shimmer de carregamento
+        document.getElementById('loading-shimmer').classList.add('escondido');
+        
+        const containerCategoriasNav = document.getElementById('nav-categorias');
+        const containerMenuConteudo = document.getElementById('menu-conteudo');
 
-        containerLanches.innerHTML = "";
-        containerBebidas.innerHTML = "";
+        // Descobre as categorias únicas que vieram do banco automaticamente
+        // Assim, se não tiver 'porção', ele nem cria a aba!
+        const categoriasUnicas = [...new Set(produtos.map(p => p.categoria))];
 
-        produtos.forEach(produto => {
-            const fotoPadrao = produto.categoria === 'lanche'
-                ? 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=200'
-                : 'https://images.unsplash.com/photo-1497534446932-c925b458314e?q=80&w=200';
+        if (categoriasUnicas.length > 0) {
+            containerCategoriasNav.classList.remove('escondido');
+        }
 
-            const imagemExibir = produto.imagem_url ? produto.imagem_url : fotoPadrao;
-
-            const cardHtml = `
-                <div class="card-produto">
-                    <div class="produto-foto-wrapper">
-                        <img src="${imagemExibir}" alt="${produto.nome}" class="produto-img">
-                    </div>
-                    <div class="produto-info">
-                        <h3>${produto.nome}</h3>
-                        <p class="produto-preco">R$ ${produto.preco.toFixed(2)}</p>
-                    </div>
-                    <button class="btn-adicionar" onclick="adicionarAoCarrinho(${produto.id}, '${produto.nome}', ${produto.preco})">
-                        +
-                    </button>
-                </div>
+        categoriasUnicas.forEach(categoria => {
+            // 1. Cria a pílula de navegação lá no topo
+            const idSecao = `secao-${categoria.replace(/\s+/g, '-')}`;
+            const nomeFormatado = categoria.charAt(0).toUpperCase() + categoria.slice(1);
+            
+            containerCategoriasNav.innerHTML += `
+                <a href="#${idSecao}" class="pill-categoria">${nomeFormatado}</a>
             `;
 
-            if (produto.categoria === 'lanche') {
-                containerLanches.innerHTML += cardHtml;
-            } else if (produto.categoria === 'bebida') {
-                containerBebidas.innerHTML += cardHtml;
-            }
+            // 2. Cria a seção no HTML
+            // Filtra os produtos dessa categoria
+            const produtosDestaCategoria = produtos.filter(p => p.categoria === categoria);
+            
+            let htmlSecao = `
+                <section id="${idSecao}" class="categoria-section">
+                    <h2>${nomeFormatado}</h2>
+                    <div class="grid-produtos">
+            `;
+
+            produtosDestaCategoria.forEach(produto => {
+                const fotoPadrao = 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=200';
+                const imagemExibir = produto.imagem_url ? produto.imagem_url : fotoPadrao;
+
+                // Perceba que agora chama abrirModalItem ao invés de direto para o carrinho
+                htmlSecao += `
+                    <div class="card-produto">
+                        <div class="produto-foto-wrapper">
+                            <img src="${imagemExibir}" alt="${produto.nome}" class="produto-img">
+                        </div>
+                        <div class="produto-info">
+                            <h3>${produto.nome}</h3>
+                            <p class="produto-preco">R$ ${produto.preco.toFixed(2)}</p>
+                        </div>
+                        <button class="btn-adicionar" onclick="abrirModalItem(${produto.id}, '${produto.nome}', ${produto.preco})">
+                            +
+                        </button>
+                    </div>
+                `;
+            });
+
+            htmlSecao += `</div></section>`;
+            containerMenuConteudo.innerHTML += htmlSecao;
         });
 
     } catch (erro) {
         console.error("Erro ao conectar com o back-end:", erro);
-        document.getElementById('nome-lanchonete').innerText = "Erro ao carregar o servidor 😢";
+        document.getElementById('nome-lanchonete').innerText = "Erro ao carregar cardápio";
+        document.getElementById('loading-shimmer').innerHTML = "<p style='text-align:center; margin-top: 20px;'>Sistema temporariamente indisponível.</p>";
     }
 }
 
 // ==========================================
-// 2. LÓGICA DO CARRINHO DE COMPRAS (RODAPÉ)
+// 3. LÓGICA DO CARRINHO COM OBSERVAÇÕES
 // ==========================================
-function adicionarAoCarrinho(id, nome, preco) {
-    const itemExistente = carrinho.find(item => item.produto_id === id);
+function abrirModalItem(id, nome, preco) {
+    if (!lojaEstaAberta()) {
+        alert(`Desculpe, nossa loja está fechada. Funcionamos das ${CONFIG_LOJA.abre} às ${CONFIG_LOJA.fecha}.`);
+        return;
+    }
+
+    itemTemporario = { id, nome, preco };
+    document.getElementById('modal-item-nome').innerText = nome;
+    document.getElementById('modal-item-preco').innerText = `R$ ${preco.toFixed(2)}`;
+    document.getElementById('item-obs').value = ""; // Limpa a observação anterior
+    
+    document.getElementById('modal-item').classList.remove('escondido');
+}
+
+function fecharModalItem() {
+    document.getElementById('modal-item').classList.add('escondido');
+    itemTemporario = null;
+}
+
+function confirmarAdicaoItem() {
+    if (!itemTemporario) return;
+
+    const obs = document.getElementById('item-obs').value.trim();
+    
+    // Cria uma chave única para o item. Se for o mesmo lanche com a mesma observação, soma a quantidade.
+    // Se a observação for diferente, separa no carrinho!
+    const cartKey = `${itemTemporario.id}-${obs.toLowerCase()}`;
+
+    const itemExistente = carrinho.find(item => item.cartKey === cartKey);
 
     if (itemExistente) {
         itemExistente.quantidade += 1;
     } else {
         carrinho.push({
-            produto_id: id,
-            nome: nome,
-            preco: preco,
+            cartKey: cartKey,
+            produto_id: itemTemporario.id,
+            nome: itemTemporario.nome,
+            preco: itemTemporario.preco,
+            observacao_item: obs,
             quantidade: 1
         });
     }
+
+    fecharModalItem();
     atualizarBarraCarrinho();
 }
 
 function atualizarBarraCarrinho() {
+    // Salva o estado atual no celular do cliente
+    localStorage.setItem(`carrinho_lanchonete_${EMPRESA_ID}`, JSON.stringify(carrinho));
+
     const barra = document.getElementById('barra-carrinho');
     const qtdTexto = document.getElementById('qtd-itens-carrinho');
     const totalTexto = document.getElementById('total-carrinho');
@@ -96,39 +200,41 @@ function atualizarBarraCarrinho() {
 }
 
 // ==========================================
-// 3. NOVO MODAL: EXIBIR ITENS E ALTERNAR ENVIO
+// 4. MODAL DE ENTREGA, PAGAMENTO E ENVIO
 // ==========================================
 function abrirModalCarrinho() {
+    if (!lojaEstaAberta()) {
+        alert(`Desculpe, nossa loja está fechada. Funcionamos das ${CONFIG_LOJA.abre} às ${CONFIG_LOJA.fecha}.`);
+        return;
+    }
+
     if (carrinho.length === 0) return;
 
     const containerItensModal = document.getElementById('itens-modal-carrinho');
-    const totalModalItens = document.getElementById('total-modal-itens');
-    const totalModalGeral = document.getElementById('total-modal-geral');
-
     containerItensModal.innerHTML = "";
 
-    // Lista os itens no Modal
     carrinho.forEach(item => {
+        // Adiciona a nota da observação embaixo do nome do lanche, se existir
+        const htmlObs = item.observacao_item ? `<br><small style="color: #ef4444; font-size: 11px;">Obs: ${item.observacao_item}</small>` : '';
+        
         containerItensModal.innerHTML += `
-            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 6px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 4px;">
-                <span><strong>${item.quantidade}x</strong> ${item.nome}</span>
-                <span style="color: #475569;">R$ ${(item.preco * item.quantidade).toFixed(2)}</span>
+            <div style="font-size: 14px; margin-bottom: 8px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span><strong>${item.quantidade}x</strong> ${item.nome}</span>
+                    <span style="color: #475569;">R$ ${(item.preco * item.quantidade).toFixed(2)}</span>
+                </div>
+                ${htmlObs}
             </div>
         `;
     });
 
-    // Calcula o valor base (itens)
-    const valorItens = carrinho.reduce((soma, item) => soma + (item.preco * item.quantidade), 0);
-
-    totalModalItens.innerText = `R$ ${valorItens.toFixed(2)}`;
-    totalModalGeral.innerText = `R$ ${valorItens.toFixed(2)}`; // Inicialmente igual, pois começa em "Retirada"
-
-    // Garante que comece com "Retirada" marcado e a taxa/endereços sumidos ao reabrir
+    // Reset padrão do Modal
     document.querySelector('input[name="tipo_envio"][value="retirada"]').checked = true;
-    document.getElementById('campos-endereco').classList.add('escondido');
-    document.getElementById('linha-taxa-entrega').classList.add('escondido');
+    document.getElementById('forma-pagamento').value = "Pix";
+    
+    alternarCampos();
+    alternarTroco();
 
-    // Abre o modal na tela
     document.getElementById('modal-entrega').classList.remove('escondido');
 }
 
@@ -136,52 +242,62 @@ function fecharModalEntrega() {
     document.getElementById('modal-entrega').classList.add('escondido');
 }
 
-// Mostra ou esconde as caixas de texto dependendo da escolha (Retirada ou Entrega)
-function alternarCamposEndereco() {
+function alternarCampos() {
     const tipoEnvio = document.querySelector('input[name="tipo_envio"]:checked').value;
     const blocoEndereco = document.getElementById('campos-endereco');
     const linhaTaxa = document.getElementById('linha-taxa-entrega');
     const totalModalGeral = document.getElementById('total-modal-geral');
+    const totalModalItens = document.getElementById('total-modal-itens');
 
-    // Recupera o valor atual dos itens dinamicamente
     const valorItens = carrinho.reduce((soma, item) => soma + (item.preco * item.quantidade), 0);
     const taxaEntrega = 7.00;
 
+    totalModalItens.innerText = `R$ ${valorItens.toFixed(2)}`;
+
     if (tipoEnvio === 'entrega') {
-        blocoEndereco.classList.remove('escondido'); // Mostra Bairro, Rua, Número...
-        linhaTaxa.classList.remove('escondido');    // Mostra a linha "Taxa de entrega: R$ 7,00"
-
-        // Atualiza o total geral somando a taxa
-        const novoTotal = valorItens + taxaEntrega;
-        totalModalGeral.innerText = `R$ ${novoTotal.toFixed(2)}`;
+        blocoEndereco.classList.remove('escondido');
+        linhaTaxa.classList.remove('escondido');
+        totalModalGeral.innerText = `R$ ${(valorItens + taxaEntrega).toFixed(2)}`;
     } else {
-        blocoEndereco.classList.add('escondido');    // Esconde o endereço
-        linhaTaxa.classList.add('escondido');       // Esconde a taxa
-
-        // Volta o total geral para o valor original dos lanches
+        blocoEndereco.classList.add('escondido');
+        linhaTaxa.classList.add('escondido');
         totalModalGeral.innerText = `R$ ${valorItens.toFixed(2)}`;
     }
 }
 
-// ==========================================
-// 4. DISPARO FINAL DO PEDIDO (BANCO + WHATSAPP)
-// ==========================================
+function alternarTroco() {
+    const formaPgto = document.getElementById('forma-pagamento').value;
+    const campoTroco = document.getElementById('campo-troco');
+    
+    if (formaPgto === 'Dinheiro') {
+        campoTroco.classList.remove('escondido');
+    } else {
+        campoTroco.classList.add('escondido');
+        document.getElementById('cliente-troco').value = ""; // Limpa se trocar de opção
+    }
+}
+
+// Disparo Final
 async function enviarPedidoFinal() {
+    if (!lojaEstaAberta()) {
+        alert("A loja fechou durante o processo. Seu pedido não pôde ser concluído.");
+        return;
+    }
+
     const tipoEnvio = document.querySelector('input[name="tipo_envio"]:checked').value;
+    const formaPagamento = document.getElementById('forma-pagamento').value;
+    let troco = document.getElementById('cliente-troco').value.trim();
+    
+    let rua = "", numero = "", bairro = "";
+    let obsGeral = document.getElementById('cliente-obs').value.trim();
 
-    let rua = "";
-    let numero = "";
-    let bairro = "";
-    let observacao = document.getElementById('cliente-obs').value.trim();
-
-    // Se for entrega, valida obrigatoriamente as caixas separadas
     if (tipoEnvio === 'entrega') {
         rua = document.getElementById('cliente-rua').value.trim();
         numero = document.getElementById('cliente-numero').value.trim();
         bairro = document.getElementById('cliente-bairro').value.trim();
 
         if (!rua || !numero || !bairro) {
-            alert("Por favor, preencha a Rua, Número e o Bairro para realizar a entrega!");
+            alert("Preencha a Rua, Número e o Bairro para realizar a entrega!");
             return;
         }
     }
@@ -196,7 +312,6 @@ async function enviarPedidoFinal() {
     }));
 
     try {
-        // 1. Envia para o seu Python salvar no banco de dados
         const response = await fetch(`${API_URL}/pedidos?empresa_id=${EMPRESA_ID}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -205,68 +320,59 @@ async function enviarPedidoFinal() {
 
         if (response.ok) {
             const resultado = await response.json();
-
-            alert(`🎉 Pedido enviado com sucesso!\nID: #${resultado.pedido_id}`);
             fecharModalEntrega();
 
             // ==========================================
-            // 🚀 ESTRUTURAÇÃO DO RELATÓRIO DO WHATSAPP
+            // RELATÓRIO DO WHATSAPP APRIMORADO
             // ==========================================
             const meuNumero = "5547984318419";
-
             let textoWhats = `*Novo Pedido - Barraca do Lanche (Pedido #${resultado.pedido_id})*\n\n`;
 
             textoWhats += `*🛒 ITENS DO PEDIDO:*\n`;
             carrinho.forEach(item => {
-                textoWhats += `• ${item.quantidade}x ${item.nome} (R$ ${item.preco.toFixed(2)} cada)\n`;
+                textoWhats += `• ${item.quantidade}x ${item.nome} (R$ ${(item.preco * item.quantidade).toFixed(2)})\n`;
+                if (item.observacao_item) {
+                    textoWhats += `  _⚠️ Obs: ${item.observacao_item}_\n`;
+                }
             });
 
-            textoWhats += `\n*FORMA DE ENVIO:* ${tipoEnvio === 'entrega' ? '🚚 Entrega' : '🏪 Retirada na Loja'}\n`;
-
+            textoWhats += `\n*📦 FORMA DE ENVIO:* ${tipoEnvio === 'entrega' ? '🚚 Entrega' : '🏪 Retirada'}\n`;
             if (tipoEnvio === 'entrega') {
-                textoWhats += `\n*📍 ENDEREÇO DE ENTREGA:*\n`;
-                textoWhats += `• *Rua:* ${rua}, Nº ${numero}\n`;
-                textoWhats += `• *Bairro:* ${bairro}\n`;
+                textoWhats += `*📍 ENDEREÇO:*\n${rua}, Nº ${numero} - ${bairro}\n`;
             }
 
-            if (observacao) {
-                textoWhats += `• *Obs:* ${observacao}\n`;
+            if (obsGeral) textoWhats += `\n*📝 OBS GERAL:* ${obsGeral}\n`;
+
+            textoWhats += `\n*💵 FORMA DE PAGAMENTO:* ${formaPagamento}\n`;
+            if (formaPagamento === 'Dinheiro' && troco) {
+                textoWhats += `*🔄 Troco para:* ${troco}\n`;
             }
 
             textoWhats += `\n-------------------------\n`;
-            textoWhats += `• Subtotal Itens: R$ ${valorItens.toFixed(2)}\n`;
-            if (tipoEnvio === 'entrega') {
-                textoWhats += `• Taxa de Entrega: R$ ${taxaEntrega.toFixed(2)}\n`;
-            }
+            textoWhats += `• Subtotal: R$ ${valorItens.toFixed(2)}\n`;
+            if (tipoEnvio === 'entrega') textoWhats += `• Entrega: R$ ${taxaEntrega.toFixed(2)}\n`;
             textoWhats += `*Total a Pagar: R$ ${valorTotalGeral.toFixed(2)}*\n\n`;
 
-            // ==========================================
-            // 💰 INFORMAÇÕES DE PAGAMENTO (PIX)
-            // ==========================================
-            textoWhats += `*🔑 CHAVE PIX:* felipeadr2@gmail.com\n\n`;
-            textoWhats += `_⚠️ Envie seu comprovante para finalizar a compra_`;
+            if (formaPagamento === 'Pix') {
+                textoWhats += `*🔑 CHAVE PIX:* felipeadr2@gmail.com\n_Envie seu comprovante logo abaixo!_`;
+            } else {
+                textoWhats += `_Aguardando confirmação do restaurante._`;
+            }
 
-            // Converte com segurança para URL sem quebrar nada no chat
             const textoCodificado = encodeURIComponent(textoWhats);
 
-            // Limpeza geral de estado e inputs
+            // LIMPEZA DO CARRINHO E DA MEMÓRIA
             carrinho = [];
+            localStorage.removeItem(`carrinho_lanchonete_${EMPRESA_ID}`);
             atualizarBarraCarrinho();
             
-            // Tratamento preventivo caso os campos não existam na árvore DOM na hora de limpar
-            if(document.getElementById('cliente-rua')) document.getElementById('cliente-rua').value = "";
-            if(document.getElementById('cliente-numero')) document.getElementById('cliente-numero').value = "";
-            if(document.getElementById('cliente-bairro')) document.getElementById('cliente-bairro').value = "";
-            if(document.getElementById('cliente-obs')) document.getElementById('cliente-obs').value = "";
+            // Limpa os inputs
+            document.querySelectorAll('input[type="text"]').forEach(input => input.value = '');
 
-            // URL Universal que dispara o App do celular ou o Web no PC
-            const urlFinal = `https://api.whatsapp.com/send?phone=${meuNumero}&text=${textoCodificado}`;
-            
-            // Redireciona na mesma aba eliminando o bloqueio de pop-up do mobile
-            window.location.href = urlFinal;
+            window.location.href = `https://api.whatsapp.com/send?phone=${meuNumero}&text=${textoCodificado}`;
 
         } else {
-            alert("Erro ao processar o pedido no servidor Python.");
+            alert("Erro ao processar o pedido.");
         }
     } catch (erro) {
         console.error(erro);
@@ -274,5 +380,5 @@ async function enviarPedidoFinal() {
     }
 }
 
-// Inicializa o cardápio automaticamente
+// Inicializa a aplicação
 carregarCardapio();

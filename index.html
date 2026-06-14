@@ -13,31 +13,39 @@
 
     <header class="header-lanchonete">
         <div class="banner-fundo"></div>
-
         <div class="header-info">
-            <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=200" alt="Logo da Lanchonete" class="logo-lanchonete">
-            
+            <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=200" alt="Logo da Lanchonete"
+                class="logo-lanchonete">
             <h1 id="nome-lanchonete">Carregando...</h1>
-            
             <p class="localidade"><i class="fa-solid fa-location-dot"></i> Centro, Sua Cidade - SC</p>
-            
-            <p class="status-badge"><i class="fa-solid fa-circle"></i> Aberto</p>
+            <p id="badge-status" class="status-badge"><i class="fa-solid fa-circle"></i> Verificando...</p>
         </div>
     </header>
 
+    <nav id="nav-categorias" class="nav-categorias escondido">
+        </nav>
+
     <main class="container">
 
-        <section class="categoria-section">
-            <h2><i class="fa-solid fa-hamburger"></i> Lanches </h2>
-            <div id="lista-lanches" class="grid-produtos">
+        <div id="loading-shimmer" class="shimmer-container">
+            <div class="shimmer-title"></div>
+            <div class="shimmer-card">
+                <div class="shimmer-img"></div>
+                <div class="shimmer-linhas">
+                    <div class="shimmer-linha w-70"></div>
+                    <div class="shimmer-linha w-40"></div>
+                </div>
             </div>
-        </section>
+            <div class="shimmer-card">
+                <div class="shimmer-img"></div>
+                <div class="shimmer-linhas">
+                    <div class="shimmer-linha w-60"></div>
+                    <div class="shimmer-linha w-30"></div>
+                </div>
+            </div>
+        </div>
 
-        <section class="categoria-section">
-            <h2><i class="fa-classic fa-solid fa-glass-water fa-fw"></i> Bebidas </h2>
-            <div id="lista-bebidas" class="grid-produtos">
-            </div>
-        </section>
+        <div id="menu-conteudo"></div>
 
     </main>
 
@@ -50,12 +58,28 @@
         </div>
     </div>
 
-    <div id="modal-entrega" class="modal-container escondido">
+    <div id="modal-item" class="modal-container escondido">
         <div class="modal-content">
+            <h3 id="modal-item-nome">Nome do Lanche</h3>
+            <p id="modal-item-preco" style="color: #475569; font-weight: 600; margin-bottom: 15px;">R$ 0,00</p>
+            
+            <div class="form-group">
+                <label>Alguma observação?</label>
+                <input type="text" id="item-obs" placeholder="Ex: Sem cebola, carne bem passada...">
+            </div>
+
+            <div class="modal-botoes">
+                <button class="btn-cancelar" onclick="fecharModalItem()">Cancelar</button>
+                <button class="btn-confirmar-entrega" onclick="confirmarAdicaoItem()">Adicionar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-entrega" class="modal-container escondido">
+        <div class="modal-content modal-scrollable">
             <h3><i class="fa-solid fa-shopping-basket"></i> Seu Carrinho</h3>
 
-            <div id="itens-modal-carrinho" class="carrinho-itens-lista">
-            </div>
+            <div id="itens-modal-carrinho" class="carrinho-itens-lista"></div>
 
             <div class="totais-modal-box"
                 style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #e2e8f0; font-size: 14px;">
@@ -81,22 +105,18 @@
                 <label>Como deseja receber?</label>
                 <div class="radio-group">
                     <label class="radio-label">
-                        <input type="radio" name="tipo_envio" value="retirada" checked
-                            onchange="alternarCamposEndereco()">
+                        <input type="radio" name="tipo_envio" value="retirada" checked onchange="alternarCampos()">
                         <span><i class="fa-solid fa-store"></i> Retirada</span>
                     </label>
                     <label class="radio-label">
-                        <input type="radio" name="tipo_envio" value="entrega" onchange="alternarCamposEndereco()">
+                        <input type="radio" name="tipo_envio" value="entrega" onchange="alternarCampos()">
                         <span><i class="fa-solid fa-truck"></i> Entrega</span>
                     </label>
                 </div>
             </div>
 
             <div id="campos-endereco" class="escondido">
-                <h4
-                    style="font-size: 14px; color: #475569; margin: 15px 0 8px 0; border-top: 1px solid #e2e8f0; padding-top: 10px;">
-                    Endereço de Entrega</h4>
-
+                <h4 style="font-size: 14px; color: #475569; margin: 15px 0 8px 0; border-top: 1px solid #e2e8f0; padding-top: 10px;">Endereço de Entrega</h4>
                 <div class="form-group-row">
                     <div class="form-group">
                         <label>Rua</label>
@@ -107,21 +127,34 @@
                         <input type="text" id="cliente-numero" placeholder="123">
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label>Bairro</label>
                     <input type="text" id="cliente-bairro" placeholder="Ex: Centro">
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label>Observação (Opcional)</label>
-                    <input type="text" id="cliente-obs" placeholder="Ex: Ap 202, Bloco B / Sem salada">
-                </div>
+            <div class="opcao-envio-container" style="border-top: 1px solid #e2e8f0; padding-top: 15px; margin-top: 15px;">
+                <label>Forma de Pagamento</label>
+                <select id="forma-pagamento" onchange="alternarTroco()" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; margin-top: 5px;">
+                    <option value="Pix">Pix</option>
+                    <option value="Cartão">Cartão (Levar maquininha)</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                </select>
+            </div>
+
+            <div id="campo-troco" class="form-group escondido" style="margin-top: 10px;">
+                <label>Troco para quanto?</label>
+                <input type="text" id="cliente-troco" placeholder="Ex: R$ 50,00">
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
+                <label>Observação Geral do Pedido</label>
+                <input type="text" id="cliente-obs" placeholder="Ex: Ap 202, interfone quebrado">
             </div>
 
             <div class="modal-botoes">
                 <button class="btn-cancelar" onclick="fecharModalEntrega()">Voltar</button>
-                <button class="btn-confirmar-entrega" onclick="enviarPedidoFinal()">Confirmar e Enviar</button>
+                <button class="btn-confirmar-entrega" onclick="enviarPedidoFinal()">Confirmar Pedido</button>
             </div>
         </div>
     </div>

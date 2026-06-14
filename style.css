@@ -354,3 +354,99 @@ body {
     cursor: pointer;
     font-weight: 600;
 }
+
+/* MANTENHA TODO O SEU CSS ANTERIOR AQUI, APENAS ADICIONE AS REGRAS ABAIXO NO FINAL DO ARQUIVO */
+
+/* ==========================================================================
+   7. NAVEGAÇÃO DE CATEGORIAS (PILLS)
+   ========================================================================== */
+.nav-categorias {
+    display: flex;
+    gap: 12px;
+    padding: 15px 20px;
+    overflow-x: auto; /* Permite rolar pro lado no celular */
+    background-color: #f1f5f9;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 10px -5px rgba(0,0,0,0.05);
+}
+
+/* Esconder barra de rolagem (Fica mais limpo) */
+.nav-categorias::-webkit-scrollbar { display: none; }
+.nav-categorias { -ms-overflow-style: none; scrollbar-width: none; }
+
+.pill-categoria {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.pill-categoria:hover, .pill-categoria:active {
+    background-color: #1e293b;
+    color: #ffffff;
+    border-color: #1e293b;
+}
+
+/* ==========================================================================
+   8. EFEITO DE CARREGAMENTO (SHIMMER/SKELETON)
+   ========================================================================== */
+.shimmer-container { margin-top: 20px; }
+
+.shimmer-title {
+    height: 20px;
+    width: 120px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    margin-bottom: 16px;
+}
+
+.shimmer-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.shimmer-img {
+    width: 70px; height: 70px;
+    border-radius: 8px;
+    background: #e2e8f0;
+}
+
+.shimmer-linhas { flex-grow: 1; display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+
+.shimmer-linha { height: 14px; border-radius: 4px; background: #e2e8f0; }
+.w-70 { width: 70%; } .w-60 { width: 60%; }
+.w-40 { width: 40%; } .w-30 { width: 30%; }
+
+/* Animação do Shimmer */
+.shimmer-title, .shimmer-img, .shimmer-linha {
+    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+    background-size: 200% 100%;
+    animation: shimmerAnim 1.5s infinite;
+}
+
+@keyframes shimmerAnim {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Ajuste para o Modal não estourar a tela do celular */
+.modal-scrollable {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Status dinâmico Fechado */
+.status-fechado { background-color: #fef2f2 !important; color: #991b1b !important; }
+.status-fechado i { color: #ef4444 !important; }
