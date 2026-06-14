@@ -9,8 +9,8 @@
 }
 
 body {
-    background-color: #e6e6e6; /* Fundo off-white suave */
-    color: #334155; /* Texto cinza-escuro (não é o preto puro que cansa) */
+    background-color: #f1f5f9; /* Fundo levemente mais claro para destacar o cardápio */
+    color: #334155; 
     padding-bottom: 90px; 
 }
 
@@ -21,37 +21,76 @@ body {
 }
 
 /* ==========================================================================
-   2. CABEÇALHO SOFISTICADO (TIPO BOUTIQUE)
+   2. CABEÇALHO SOFISTICADO (ESTILO APP DE DELIVERY)
    ========================================================================== */
 .header-lanchonete {
-    background-color: #1e293b; /* Azul ardósia profundo, elegante e sóbrio */
-    color: #f8fafc;
-    padding: 45px 20px;
-    text-align: center;
-    border-bottom-left-radius: 16px;
-    border-bottom-right-radius: 16px;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+    background-color: #ffffff;
+    padding-bottom: 24px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
 }
 
-.header-lanchonete h1 {
-    font-size: 26px;
-    margin-bottom: 8px;
-    font-weight: 600;
+.banner-fundo {
+    width: 100%;
+    height: 160px; /* Altura do banner grandão */
+    /* Substitua a URL abaixo pela foto da fachada ou lanches do seu cliente */
+    background-image: url('https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=1172&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); 
+    background-size: cover;
+    background-position: center;
+}
+
+.header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* A margem negativa abaixo é o que faz o logo subir para cima do banner! */
+    margin-top: -50px; 
+    padding: 0 20px;
+}
+
+.logo-lanchonete {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid #ffffff; /* Borda branca grossa para dar destaque */
+    object-fit: cover;
+    background-color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#nome-lanchonete {
+    font-size: 24px;
+    color: #1e293b;
+    margin-top: 12px;
+    font-weight: 700;
     letter-spacing: -0.5px;
 }
 
+.localidade {
+    font-size: 14px;
+    color: #64748b;
+    margin: 6px 0 12px 0;
+}
+
+.localidade i {
+    color: #ef4444; /* Ícone de pino de localização vermelhinho */
+}
+
 .status-badge {
-    background-color: rgba(255, 255, 255, 0.1);
-    display: inline-block;
+    background-color: #ecfdf5; /* Fundo verde super claro */
+    color: #065f46; /* Letra verde escuro */
+    display: inline-flex;
+    align-items: center;
     padding: 5px 14px;
     border-radius: 30px;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .status-badge i {
-    color: #10b981; /* Verde esmeralda suave para o "Aberto" */
-    font-size: 9px;
+    color: #10b981; 
+    font-size: 8px;
     margin-right: 6px;
 }
 
@@ -64,8 +103,8 @@ body {
 
 .categoria-section h2 {
     font-size: 16px;
-    color: #64748b; /* Texto de apoio cinza-médio */
-    text-transform: uppercase; /* Deixa o título discreto e elegante */
+    color: #64748b; 
+    text-transform: uppercase; 
     letter-spacing: 1px;
     margin-bottom: 16px;
     border-bottom: 1px solid #e2e8f0;
@@ -92,15 +131,14 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    border: 1px solid #edf2f7; /* Borda bem fina para dar estrutura sem carregar */
+    border: 1px solid #edf2f7; 
     transition: all 0.2s ease;
 }
 
 .card-produto:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); /* Sombra quase invisível */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); 
 }
 
-/* FOTO DO PRODUTO */
 .produto-foto-wrapper {
     width: 70px;
     height: 70px;
@@ -114,10 +152,9 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: brightness(0.98); /* Suaviza fotos muito estouradas */
+    filter: brightness(0.98); 
 }
 
-/* INFORMAÇÕES DO PRODUTO */
 .produto-info {
     flex-grow: 1;
 }
@@ -130,17 +167,16 @@ body {
 }
 
 .produto-preco {
-    color: #475569; /* Cinza sóbrio para o preço não gritar */
+    color: #475569; 
     font-weight: 600;
     font-size: 15px;
 }
 
-/* BOTÃO DE ADICIONAR (+) DISCRETO */
 .btn-adicionar {
-    background-color: #b9ccdf; /* Fundo cinza bem clarinho */
+    background-color: #b9ccdf; 
     color: #283444;
     border: none;
-    border-radius: 8px; /* Quadrado com cantos levemente arredondados, mais moderno */
+    border-radius: 8px; 
     width: 34px;
     height: 34px;
     font-size: 16px;
@@ -154,7 +190,7 @@ body {
 }
 
 .btn-adicionar:hover {
-    background-color: #cbd5e1; /* Escurece de leve no hover */
+    background-color: #cbd5e1; 
     color: #1e293b;
 }
 
@@ -168,7 +204,7 @@ body {
     transform: translateX(-50%);
     width: 90%;
     max-width: 500px;
-    background-color: #1e293b; /* Casando com o Header */
+    background-color: #1e293b; 
     border-radius: 12px;
     padding: 12px 18px;
     box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15);
@@ -193,7 +229,7 @@ body {
 }
 
 .barra-carrinho button {
-    background-color: #10b981; /* Verde sálvia/esmeralda ativo e calmo */
+    background-color: #10b981; 
     color: white;
     border: none;
     padding: 8px 16px;
@@ -211,7 +247,6 @@ body {
     background-color: #059669;
 }
 
-/* AUXILIAR */
 .escondido {
     display: none !important;
 }
@@ -222,7 +257,7 @@ body {
 .modal-container {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(15, 23, 42, 0.6); /* Fundo escurecido suave */
+    background-color: rgba(15, 23, 42, 0.6); 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -244,8 +279,32 @@ body {
     margin-bottom: 6px;
 }
 
+.opcao-envio-container {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.radio-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
 .modal-content .form-group {
     margin-bottom: 14px;
+}
+
+.form-group-row {
+    display: flex;
+    gap: 10px;
 }
 
 .modal-content label {
@@ -256,7 +315,7 @@ body {
     margin-bottom: 4px;
 }
 
-.modal-content input {
+.modal-content input[type="text"] {
     width: 100%;
     padding: 8px 12px;
     border: 1px solid #cbd5e1;
@@ -265,7 +324,7 @@ body {
     outline: none;
 }
 
-.modal-content input:focus {
+.modal-content input[type="text"]:focus {
     border-color: #10b981;
 }
 
