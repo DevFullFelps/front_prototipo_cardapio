@@ -343,7 +343,8 @@ async function enviarPedidoFinal() {
             const meuNumero = "5547984318419";
             let textoWhats = `*Novo Pedido - Barraca do Lanche (Pedido #${resultado.pedido_id})*\n\n`;
 
-            textoWhats += `*🛒 ITENS DO PEDIDO:*\n`;
+            const categoriasNoCarrinho = [...new Set(carrinho.map(i => i.categoria))]; // Se 'categoria' não estiver no item, adicione-a no momento do push do carrinho
+
             carrinho.forEach(item => {
                 textoWhats += `• ${item.quantidade}x ${item.nome} (R$ ${(item.preco * item.quantidade).toFixed(2)})\n`;
                 if (item.observacao_item) {
