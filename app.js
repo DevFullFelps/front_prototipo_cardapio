@@ -22,10 +22,10 @@ let itemTemporario = null;
 function lojaEstaAberta() {
     const agora = new Date();
     const minutosAtuais = agora.getHours() * 60 + agora.getMinutes();
-    
+
     const [hAbre, mAbre] = CONFIG_LOJA.abre.split(':').map(Number);
     const minAbre = hAbre * 60 + mAbre;
-    
+
     const [hFecha, mFecha] = CONFIG_LOJA.fecha.split(':').map(Number);
     const minFecha = hFecha * 60 + mFecha;
 
@@ -64,7 +64,7 @@ async function carregarCardapio() {
 
         // Remove o efeito shimmer de carregamento
         document.getElementById('loading-shimmer').classList.add('escondido');
-        
+
         const containerCategoriasNav = document.getElementById('nav-categorias');
         const containerMenuConteudo = document.getElementById('menu-conteudo');
 
@@ -80,7 +80,7 @@ async function carregarCardapio() {
             // 1. Cria a pílula de navegação lá no topo
             const idSecao = `secao-${categoria.replace(/\s+/g, '-')}`;
             const nomeFormatado = categoria.charAt(0).toUpperCase() + categoria.slice(1);
-            
+
             containerCategoriasNav.innerHTML += `
                 <a href="#${idSecao}" class="pill-categoria">${nomeFormatado}</a>
             `;
@@ -88,7 +88,7 @@ async function carregarCardapio() {
             // 2. Cria a seção no HTML
             // Filtra os produtos dessa categoria
             const produtosDestaCategoria = produtos.filter(p => p.categoria === categoria);
-            
+
             let htmlSecao = `
                 <section id="${idSecao}" class="categoria-section">
                     <h2>${nomeFormatado}</h2>
@@ -140,7 +140,7 @@ function abrirModalItem(id, nome, preco) {
     document.getElementById('modal-item-nome').innerText = nome;
     document.getElementById('modal-item-preco').innerText = `R$ ${preco.toFixed(2)}`;
     document.getElementById('item-obs').value = ""; // Limpa a observação anterior
-    
+
     document.getElementById('modal-item').classList.remove('escondido');
 }
 
@@ -153,7 +153,7 @@ function confirmarAdicaoItem() {
     if (!itemTemporario) return;
 
     const obs = document.getElementById('item-obs').value.trim();
-    
+
     // Cria uma chave única para o item. Se for o mesmo lanche com a mesma observação, soma a quantidade.
     // Se a observação for diferente, separa no carrinho!
     const cartKey = `${itemTemporario.id}-${obs.toLowerCase()}`;
@@ -216,7 +216,7 @@ function abrirModalCarrinho() {
     carrinho.forEach(item => {
         // Adiciona a nota da observação embaixo do nome do lanche, se existir
         const htmlObs = item.observacao_item ? `<br><small style="color: #ef4444; font-size: 11px;">Obs: ${item.observacao_item}</small>` : '';
-        
+
         containerItensModal.innerHTML += `
             <div style="font-size: 14px; margin-bottom: 8px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 8px;">
                 <div style="display: flex; justify-content: space-between;">
@@ -231,7 +231,7 @@ function abrirModalCarrinho() {
     // Reset padrão do Modal
     document.querySelector('input[name="tipo_envio"][value="retirada"]').checked = true;
     document.getElementById('forma-pagamento').value = "Pix";
-    
+
     alternarCampos();
     alternarTroco();
 
@@ -268,7 +268,7 @@ function alternarCampos() {
 function alternarTroco() {
     const formaPgto = document.getElementById('forma-pagamento').value;
     const campoTroco = document.getElementById('campo-troco');
-    
+
     if (formaPgto === 'Dinheiro') {
         campoTroco.classList.remove('escondido');
     } else {
@@ -287,7 +287,7 @@ async function enviarPedidoFinal() {
     const tipoEnvio = document.querySelector('input[name="tipo_envio"]:checked').value;
     const formaPagamento = document.getElementById('forma-pagamento').value;
     let troco = document.getElementById('cliente-troco').value.trim();
-    
+
     let rua = "", numero = "", bairro = "";
     let obsGeral = document.getElementById('cliente-obs').value.trim();
 
@@ -310,6 +310,17 @@ async function enviarPedidoFinal() {
         produto_id: item.produto_id,
         quantidade: item.quantidade
     }));
+    const payload = {
+        itens: carrinho.map(item => ({
+            produto_id: item.id,
+            quantidade: item.qtd,
+            observacao: item.observacao || "",
+        })),
+        observacao_geral: document.getElementById("obs-geral").value || "",
+        metodo_pagamento: metodoPagamento,
+        tipo_entrega: tipoEntrega,
+        // total pode ser calculado ou envie também se preferir
+    };
 
     try {
         const response = await fetch(`${API_URL}/pedidos?empresa_id=${EMPRESA_ID}`, {
@@ -365,7 +376,7 @@ async function enviarPedidoFinal() {
             carrinho = [];
             localStorage.removeItem(`carrinho_lanchonete_${EMPRESA_ID}`);
             atualizarBarraCarrinho();
-            
+
             // Limpa os inputs
             document.querySelectorAll('input[type="text"]').forEach(input => input.value = '');
 

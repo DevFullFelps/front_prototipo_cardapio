@@ -4,10 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Dono - Gerenciar Cardápio</title>
+    <title>Painel do Dono - Cardápio Digital</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Paleta Clean & Estrutura Base */
+        :root {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #334155;
+            --text-dark: #1e293b;
+            --border: #e2e8f0;
+            --green: #10b981;
+            --green-hover: #059669;
+            --red: #ef4444;
+            --red-hover: #dc2626;
+            --yellow: #f59e0b;
+            --blue: #3b82f6;
+            --gray: #64748b;
+            --shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -16,51 +31,60 @@
         }
 
         body {
-            background-color: #f8fafc;
-            color: #334155;
-            padding: 30px 20px;
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
         }
 
-        /* Container principal em duas colunas (Grip/Flex) */
-        .dashboard-layout {
-            display: flex;
-            max-width: 1100px;
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
-            gap: 30px;
-            flex-wrap: wrap;
         }
 
-        .coluna-cadastro,
-        .coluna-lista {
-            background: white;
-            padding: 30px;
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--text-dark);
+            font-size: 24px;
+        }
+
+        .header .voltar {
+            display: inline-block;
+            margin-top: 10px;
+            color: var(--blue);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card);
+            padding: 24px;
             border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
-            border: 1px solid #edf2f7;
-            flex: 1;
-            min-width: 340px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
         }
 
-        /* Títulos */
-        h1,
-        h2 {
-            font-size: 20px;
-            margin-bottom: 20px;
-            color: #1e293b;
-            font-weight: 600;
+        .card h2 {
+            font-size: 18px;
+            color: var(--text-dark);
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        h1 i,
-        h2 i {
-            color: #10b981;
+        .card h2 i {
+            color: var(--green);
         }
 
         /* Formulários */
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         label {
@@ -68,163 +92,293 @@
             font-weight: 600;
             margin-bottom: 6px;
             font-size: 13px;
-            color: #475569;
+            color: var(--text);
         }
 
         input,
         select {
             width: 100%;
             padding: 10px 14px;
-            border: 1px solid #cbd5e1;
+            border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 14px;
             outline: none;
             transition: 0.2s;
-            color: #334155;
         }
 
         input:focus,
         select:focus {
-            border-color: #10b981;
+            border-color: var(--green);
         }
 
-        .btn-salvar {
-            width: 100%;
-            background-color: #1e293b;
-            color: white;
+        .btn {
+            padding: 12px 20px;
             border: none;
-            padding: 12px;
             border-radius: 8px;
-            font-size: 15px;
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
-            margin-top: 10px;
         }
 
-        .btn-salvar:hover {
+        .btn-primary {
+            background-color: var(--text-dark);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
             background-color: #0f172a;
         }
 
-        /* Lista de Itens Existentes (Direita) */
-        .produtos-gerenciador-lista {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-height: 550px;
+        /* Listas */
+        .lista-scroll {
+            max-height: 400px;
             overflow-y: auto;
             padding-right: 5px;
         }
 
-        .item-gerenciável {
+        .item-card {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #f8fafc;
+            background: var(--bg);
             padding: 12px;
             border-radius: 10px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border);
+            margin-bottom: 10px;
             gap: 10px;
-        }
-
-        .item-info-inputs {
-            display: flex;
-            gap: 8px;
-            flex-grow: 1;
             flex-wrap: wrap;
         }
 
-        /* Inputs menores em linha dentro da lista */
-        .item-info-inputs input {
+        .item-info {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .item-info input {
             padding: 6px 10px;
             font-size: 13px;
         }
 
-        .input-lista-nome {
+        .input-nome {
             flex: 2;
             min-width: 120px;
         }
 
-        .input-lista-preco {
+        .input-preco {
             flex: 1;
             min-width: 70px;
         }
 
-        /* Botões de Ação */
-        .acoes-box {
+        .acoes {
             display: flex;
             gap: 6px;
         }
 
         .btn-acao {
-            border: none;
             width: 32px;
             height: 32px;
+            border: none;
             border-radius: 6px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 13px;
             transition: 0.2s;
         }
 
-        .btn-atualizar {
-            background-color: #e2f5ee;
-            color: #10b981;
+        .btn-editar {
+            background-color: #d1fae5;
+            color: var(--green);
         }
 
-        .btn-atualizar:hover {
-            background-color: #10b981;
+        .btn-editar:hover {
+            background-color: var(--green);
             color: white;
         }
 
-        .btn-deletar {
-            background-color: #fde8e8;
-            color: #ef4444;
+        .btn-excluir {
+            background-color: #fee2e2;
+            color: var(--red);
         }
 
-        .btn-deletar:hover {
-            background-color: #ef4444;
+        .btn-excluir:hover {
+            background-color: var(--red);
             color: white;
         }
 
-        .voltar-link {
-            display: block;
-            text-align: center;
-            margin-top: 25px;
-            color: #64748b;
-            text-decoration: none;
+        /* Pedidos */
+        .pedido-card {
+            background: var(--bg);
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+        }
+
+        .pedido-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .pedido-id {
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .pedido-hora {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .pedido-info {
+            font-size: 13px;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .pedido-itens {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-size: 13px;
+        }
+
+        .pedido-obs {
+            font-style: italic;
+            color: var(--gray);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            text-transform: uppercase;
+        }
+
+        .status-pendente {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-concluido {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-cancelado {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Estatísticas */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: var(--bg);
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-card h3 {
             font-size: 14px;
-            width: 100%;
+            color: var(--gray);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .voltar-link:hover {
-            text-decoration: underline;
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-nome {
+            font-weight: 500;
+        }
+
+        .stat-qtd {
+            font-weight: 700;
+            color: var(--green);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--gray);
+            font-size: 14px;
+            padding: 20px;
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        @media (max-width: 768px) {
+            .item-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .acoes {
+                width: 100%;
+                justify-content: flex-end;
+            }
         }
     </style>
 </head>
 
 <body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fa-solid fa-store"></i> Painel do Dono</h1>
+            <a href="index.html" class="voltar"><i class="fa-solid fa-arrow-left"></i> Voltar para o Cardápio</a>
+        </div>
 
-    <div class="dashboard-layout">
+        <!-- SEÇÃO 1: GERENCIAR PRODUTOS -->
+        <div class="card">
+            <h2><i class="fa-solid fa-utensils"></i> Gerenciar Produtos</h2>
 
-        <div class="coluna-cadastro">
-            <h1><i class="fa-solid fa-plus-circle"></i> Novo Item</h1>
-
-            <form id="form-cadastro">
+            <form id="form-produto">
                 <div class="form-group">
-                    <label for="nome">Nome do Produto</label>
+                    <label>Nome do Produto</label>
                     <input type="text" id="nome" placeholder="Ex: X-Salada Especial" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="preco">Preço (R$)</label>
-                    <input type="number" id="preco" step="0.01" placeholder="Ex: 24.90" required>
+                    <label>Preço (R$)</label>
+                    <input type="number" id="preco" step="0.01" placeholder="0.00" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="categoria">Categoria</label>
+                    <label>Categoria</label>
                     <select id="categoria" required>
                         <option value="lanche">Lanche</option>
                         <option value="bebida">Bebida</option>
@@ -232,22 +386,47 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="imagem_url">Link da Foto do Produto (Da Internet)</label>
-                    <input type="url" id="imagem_url" placeholder="Ex: https://site.com/foto-do-bolo.jpg">
+                    <label>Link da Foto (opcional)</label>
+                    <input type="url" id="imagem" placeholder="https://...">
                 </div>
 
-                <button type="submit" class="btn-salvar">Salvar no Cardápio</button>
+                <button type="submit" class="btn btn-primary">Salvar Produto</button>
             </form>
+
+            <hr class="section-divider">
+
+            <h3 style="margin-bottom: 12px; font-size: 14px; color: var(--gray);">ITENS CADASTRADOS</h3>
+            <div id="lista-produtos" class="lista-scroll"></div>
         </div>
 
-        <div class="coluna-lista">
-            <h2><i class="fa-solid fa-sliders"></i> Itens no Cardápio</h2>
+        <!-- SEÇÃO 2: PEDIDOS DO DIA -->
+        <div class="card">
+            <h2><i class="fa-solid fa-receipt"></i> Pedidos do Dia</h2>
+            <div id="lista-pedidos"></div>
+        </div>
 
-            <div id="lista-produtos-admin" class="produtos-gerenciador-lista">
+        <!-- SEÇÃO 3: ESTATÍSTICAS -->
+        <div class="card">
+            <h2><i class="fa-solid fa-chart-bar"></i>Estatísticas</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>🍔 Lanches Mais Pedidos</h3>
+                    <div id="top-lanches"></div>
+                </div>
+                <div class="stat-card">
+                    <h3>🥤 Bebidas Mais Pedidas</h3>
+                    <div id="top-bebidas"></div>
+                </div>
+                <div class="stat-card">
+                    <h3>📉 Lanches Menos Pedidos</h3>
+                    <div id="bottom-lanches"></div>
+                </div>
+                <div class="stat-card">
+                    <h3>📉 Bebidas Menos Pedidas</h3>
+                    <div id="bottom-bebidas"></div>
+                </div>
             </div>
         </div>
-
-        <a href="index.html" class="voltar-link"><i class="fa-solid fa-arrow-left"></i> Voltar para o Cardápio</a>
     </div>
 
     <script>
@@ -255,142 +434,256 @@
         const EMPRESA_ID = 1;
 
         // ==========================================
-        // 1. CARREGAR E RENDERIZAR OS PRODUTOS DA LISTA
+        // UTILITÁRIOS
         // ==========================================
-        async function buscarProdutosDoCardapio() {
-            const container = document.getElementById('lista-produtos-admin');
-            container.innerHTML = "<p style='color:#64748b; font-size:14px;'>Carregando itens...</p>";
+        function formatarData(dataISO) {
+            const d = new Date(dataISO);
+            return d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+        }
 
-            try {
-                const resposta = await fetch(`${API_URL}/produtos?empresa_id=${EMPRESA_ID}`);
-                const produtos = await resposta.json();
-
-                container.innerHTML = "";
-
-                if (produtos.length === 0) {
-                    container.innerHTML = "<p style='color:#64748b; font-size:14px;'>Nenhum item cadastrado.</p>";
-                    return;
-                }
-
-                produtos.forEach(item => {
-                    container.innerHTML += `
-                        <div class="item-gerenciável" id="produto-card-${item.id}">
-                            <div class="item-info-inputs">
-                                <input type="text" class="input-lista-nome" id="input-nome-${item.id}" value="${item.nome}">
-                                <input type="number" class="input-lista-preco" id="input-preco-${item.id}" step="0.01" value="${item.preco.toFixed(2)}">
-                            </div>
-                            <div class="acoes-box">
-                                <button class="btn-acao btn-atualizar" onclick="atualizarProduto(${item.id})" title="Salvar Alterações">
-                                    <i class="fa-solid fa-floppy-disk"></i>
-                                </button>
-                                <button class="btn-acao btn-deletar" onclick="deletarProduto(${item.id})" title="Excluir Item">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                });
-            } catch (erro) {
-                console.error(erro);
-                container.innerHTML = "<p style='color:#ef4444; font-size:14px;'>Erro ao carregar cardápio.</p>";
+        function statusCor(status) {
+            switch (status) {
+                case "concluido": return "status-concluido";
+                case "cancelado": return "status-cancelado";
+                default: return "status-pendente";
             }
         }
 
         // ==========================================
-        // 2. CADASTRAR PRODUTO (POST com URL da Internet)
+        // 1. PRODUTOS (CRUD)
         // ==========================================
-        document.getElementById('form-cadastro').addEventListener('submit', async (e) => {
+        async function carregarProdutos() {
+            const container = document.getElementById("lista-produtos");
+            try {
+                const res = await fetch(`${API_URL}/produtos?empresa_id=${EMPRESA_ID}`);
+                const produtos = await res.json();
+                container.innerHTML = "";
+
+                if (produtos.length === 0) {
+                    container.innerHTML = "<p class='empty-state'>Nenhum item cadastrado.</p>";
+                    return;
+                }
+
+                produtos.forEach(p => {
+                    const div = document.createElement("div");
+                    div.className = "item-card";
+                    div.innerHTML = `
+                        <div class="item-info">
+                            <input type="text" class="input-nome" id="nome-${p.id}" value="${p.nome}">
+                            <input type="number" class="input-preco" id="preco-${p.id}" step="0.01" value="${p.preco.toFixed(2)}">
+                        </div>
+                        <div class="acoes">
+                            <button class="btn-acao btn-editar" onclick="salvarProduto(${p.id})" title="Salvar">
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+                            <button class="btn-acao btn-excluir" onclick="excluirProduto(${p.id})" title="Excluir">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (e) {
+                container.innerHTML = "<p class='empty-state'>Erro ao carregar produtos.</p>";
+            }
+        }
+
+        document.getElementById("form-produto").addEventListener("submit", async (e) => {
             e.preventDefault();
-
-            const urlDigitada = document.getElementById('imagem_url').value.trim();
-
-            const novoProduto = {
-                nome: document.getElementById('nome').value,
-                preco: parseFloat(document.getElementById('preco').value),
-                categoria: document.getElementById('categoria').value,
-                imagem_url: urlDigitada ? urlDigitada : null,
+            const dados = {
+                nome: document.getElementById("nome").value.trim(),
+                preco: parseFloat(document.getElementById("preco").value),
+                categoria: document.getElementById("categoria").value,
+                imagem_url: document.getElementById("imagem").value.trim() || null,
                 empresa_id: EMPRESA_ID
             };
 
             try {
-                const resposta = await fetch(`${API_URL}/produtos`, {
+                const res = await fetch(`${API_URL}/produtos`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(novoProduto)
+                    body: JSON.stringify(dados)
                 });
-
-                if (resposta.ok) {
-                    alert("🎉 Produto cadastrado com sucesso!");
-                    document.getElementById('form-cadastro').reset();
-                    buscarProdutosDoCardapio();
+                if (res.ok) {
+                    document.getElementById("form-produto").reset();
+                    carregarProdutos();
                 } else {
                     alert("Erro ao cadastrar produto.");
                 }
-            } catch (erro) {
-                alert("Erro na conexão com o servidor.");
+            } catch (e) {
+                alert("Erro de conexão.");
             }
         });
 
-        // ==========================================
-        // 3. ATUALIZAR PRODUTO (PUT)
-        // ==========================================
-        async function atualizarProduto(id) {
-            const nomeAlterado = document.getElementById(`input-nome-${id}`).value.trim();
-            const precoAlterado = parseFloat(document.getElementById(`input-preco-${id}`).value);
-
-            if (!nomeAlterado || isNaN(precoAlterado)) {
-                alert("Preencha os campos corretamente antes de salvar!");
-                return;
-            }
-
-            const dadosAtualizados = {
-                nome: nomeAlterado,
-                preco: precoAlterado
-            };
+        async function salvarProduto(id) {
+            const nome = document.getElementById(`nome-${id}`).value.trim();
+            const preco = parseFloat(document.getElementById(`preco-${id}`).value);
+            if (!nome || isNaN(preco)) return alert("Preencha os campos corretamente.");
 
             try {
-                const resposta = await fetch(`${API_URL}/produtos/${id}`, {
+                const res = await fetch(`${API_URL}/produtos/${id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(dadosAtualizados)
+                    body: JSON.stringify({ nome, preco })
                 });
-
-                if (resposta.ok) {
-                    alert("🔄 Produto updated com sucesso!");
-                    buscarProdutosDoCardapio();
+                if (res.ok) {
+                    alert("✅ Produto atualizado!");
                 } else {
-                    alert("Erro ao salvar alterações no servidor.");
+                    alert("Erro ao atualizar.");
                 }
-            } catch (erro) {
-                console.error(erro);
-                alert("Erro ao conectar com o servidor.");
+            } catch (e) {
+                alert("Erro de conexão.");
+            }
+        }
+
+        async function excluirProduto(id) {
+            if (!confirm("Remover este item permanentemente?")) return;
+            try {
+                const res = await fetch(`${API_URL}/produtos/${id}`, { method: "DELETE" });
+                if (res.ok) {
+                    carregarProdutos();
+                } else {
+                    alert("Erro ao excluir.");
+                }
+            } catch (e) {
+                alert("Erro de conexão.");
             }
         }
 
         // ==========================================
-        // 4. DELETAR PRODUTO (DELETE)
+        // 2. PEDIDOS DO DIA
         // ==========================================
-        async function deletarProduto(id) {
-            if (!confirm("Tem certeza que deseja remover este item permanentemente do cardápio?")) return;
+        async function carregarPedidos() {
+            const container = document.getElementById("lista-pedidos");
+            const hoje = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
             try {
-                const resposta = await fetch(`${API_URL}/produtos/${id}`, {
-                    method: "DELETE"
-                });
+                const res = await fetch(`${API_URL}/pedidos?empresa_id=${EMPRESA_ID}&data=${hoje}`);
+                const pedidos = await res.json();
+                container.innerHTML = "";
 
-                if (resposta.ok) {
-                    document.getElementById(`produto-card-${id}`).remove();
-                    alert("🗑️ Item removido!");
-                } else {
-                    alert("Erro ao deletar o produto.");
+                if (pedidos.length === 0) {
+                    container.innerHTML = "<p class='empty-state'>Nenhum pedido hoje.</p>";
+                    return;
                 }
-            } catch (erro) {
-                alert("Erro de conexão ao deletar.");
+
+                // Ordena por horário (mais antigo primeiro)
+                pedidos.sort((a, b) => new Date(a.data_criacao) - new Date(b.data_criacao));
+
+                pedidos.forEach(p => {
+                    const hora = formatarData(p.data_criacao);
+                    const pagamento = p.metodo_pagamento === "pix" ? "Pix" :
+                                     p.metodo_pagamento === "cartao" ? "Cartão (Levar maquininha)" :
+                                     p.metodo_pagamento === "dinheiro" ? "Dinheiro" : "Não informado";
+
+                    const entrega = p.tipo_entrega === "retirada" ? "Retirada" : "Entrega";
+
+                    let itensHTML = p.itens.map(i => `
+                        <div>
+                            <strong>${i.quantidade}x</strong> ${i.nome}
+                            ${i.observacao ? `<div class="pedido-obs">Obs: ${i.observacao}</div>` : ""}
+                        </div>
+                    `).join("");
+
+                    if (p.observacao_geral) {
+                        itensHTML += `<div class="pedido-obs">📝 Obs. Geral: ${p.observacao_geral}</div>`;
+                    }
+
+                    const div = document.createElement("div");
+                    div.className = "pedido-card";
+                    div.innerHTML = `
+                        <div class="pedido-header">
+                            <div>
+                                <span class="pedido-id">#${p.id}</span>
+                                <span class="pedido-hora"><i class="fa-regular fa-clock"></i> ${hora}</span>
+                            </div>
+                            <button class="status-badge ${statusCor(p.status)}" onclick="alterarStatus(${p.id}, this)">
+                                ${p.status}
+                            </button>
+                        </div>
+                        <div class="pedido-info"><i class="fa-solid fa-money-bill"></i> <strong>Total:</strong> R$ ${p.total.toFixed(2)}</div>
+                        <div class="pedido-info"><i class="fa-solid fa-credit-card"></i> <strong>Pagamento:</strong> ${pagamento}</div>
+                        <div class="pedido-info"><i class="fa-solid fa-truck"></i> <strong>Entrega:</strong> ${entrega}</div>
+                        <div class="pedido-itens">${itensHTML}</div>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (e) {
+                container.innerHTML = "<p class='empty-state'>Erro ao carregar pedidos.</p>";
             }
         }
 
-        // Inicia a listagem de lanches assim que abre a página de Admin
-        buscarProdutosDoCardapio();
+        async function alterarStatus(pedidoId, botao) {
+            const ciclo = {
+                "pendente": "concluido",
+                "concluido": "cancelado",
+                "cancelado": "pendente"
+            };
+            const atual = botao.textContent.trim();
+            const novo = ciclo[atual] || "pendente";
+
+            try {
+                const res = await fetch(`${API_URL}/pedidos/${pedidoId}/status`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ novo_status: novo })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    botao.textContent = novo;
+                    botao.className = `status-badge ${statusCor(novo)}`;
+                } else {
+                    alert("Erro: " + data.detail);
+                }
+            } catch (e) {
+                alert("Erro de conexão.");
+            }
+        }
+
+        // ==========================================
+        // 3. ESTATÍSTICAS
+        // ==========================================
+        async function carregarEstatisticas() {
+            const containerTopLanches = document.getElementById("top-lanches");
+            const containerTopBebidas = document.getElementById("top-bebidas");
+            const containerBottomLanches = document.getElementById("bottom-lanches");
+            const containerBottomBebidas = document.getElementById("bottom-bebidas");
+
+            try {
+                const res = await fetch(`${API_URL}/dashboard/metricas?empresa_id=${EMPRESA_ID}`);
+                const dados = await res.json();
+
+                function renderList(container, items) {
+                    if (!items || items.length === 0) {
+                        container.innerHTML = "<p class='empty-state'>Sem dados</p>";
+                        return;
+                    }
+                    container.innerHTML = items.map(i => `
+                        <div class="stat-item">
+                            <span class="stat-nome">${i.nome}</span>
+                            <span class="stat-qtd">${i.quantidade_vendida}x</span>
+                        </div>
+                    `).join("");
+                }
+
+                renderList(containerTopLanches, dados.lanches_mais_vendidos);
+                renderList(containerTopBebidas, dados.bebidas_mais_vendidas);
+                renderList(containerBottomLanches, dados.lanches_menos_vendidos);
+                renderList(containerBottomBebidas, dados.bebidas_menos_vendidas);
+            } catch (e) {
+                containerTopLanches.innerHTML = "<p class='empty-state'>Erro ao carregar.</p>";
+            }
+        }
+
+        // ==========================================
+        // INICIALIZAÇÃO
+        // ==========================================
+        carregarProdutos();
+        carregarPedidos();
+        carregarEstatisticas();
+
+        // Atualiza pedidos a cada 30 segundos
+        setInterval(carregarPedidos, 30000);
     </script>
 </body>
 
