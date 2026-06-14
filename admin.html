@@ -551,7 +551,7 @@
         }
 
         // ==========================================
-        // 2. PEDIDOS DO DIA
+        // 2. PEDIDOS DO DIA (ORDENADOS E CORRIGIDOS)
         // ==========================================
         async function carregarPedidos() {
             const container = document.getElementById("lista-pedidos");
@@ -567,15 +567,22 @@
                     return;
                 }
 
-                // Ordena por horário (mais antigo primeiro)
-                pedidos.sort((a, b) => new Date(a.data_criacao) - new Date(b.data_criacao));
+                // Lógica de Ordenação: 
+                // 1º Pendentes (0), 2º Cancelados (1), 3º Concluídos (2)
+                // Se o status for igual, ordena pela hora (mais antigo primeiro)
+                const prioridadeStatus = { "pendente": 0, "cancelado": 1, "concluido": 2 };
+
+                pedidos.sort((a, b) => {
+                    const statusDiff = prioridadeStatus[a.status] - prioridadeStatus[b.status];
+                    if (statusDiff !== 0) return statusDiff; // Separa por status
+                    return new Date(a.data_criacao) - new Date(b.data_criacao); // Ordem de chegada
+                });
 
                 pedidos.forEach(p => {
                     const hora = formatarData(p.data_criacao);
-                    const pagamento = p.metodo_pagamento === "pix" ? "Pix" :
-                                     p.metodo_pagamento === "cartao" ? "Cartão (Levar maquininha)" :
-                                     p.metodo_pagamento === "dinheiro" ? "Dinheiro" : "Não informado";
 
+                    // Exibe o método de pagamento real gravado no banco ou 'Não informado'
+                    const pagamento = p.metodo_pagamento ? p.metodo_pagamento : "Não informado";
                     const entrega = p.tipo_entrega === "retirada" ? "Retirada" : "Entrega";
 
                     let itensHTML = p.itens.map(i => `
@@ -586,7 +593,7 @@
                     `).join("");
 
                     if (p.observacao_geral) {
-                        itensHTML += `<div class="pedido-obs">📝 Obs. Geral: ${p.observacao_geral}</div>`;
+                        itensHTML += `<div class="pedido-obs" style="margin-top:8px; color: #dc2626;">📝 Obs. Geral: ${p.observacao_geral}</div>`;
                     }
 
                     const div = document.createElement("div");
@@ -614,32 +621,38 @@
         }
 
         async function alterarStatus(pedidoId, botao) {
+            // Ciclo de mudança: Pendente -> Concluido -> Cancelado -> Pendente
             const ciclo = {
                 "pendente": "concluido",
                 "concluido": "cancelado",
                 "cancelado": "pendente"
             };
-            const atual = botao.textContent.trim();
+            const atual = botao.textContent.trim().toLowerCase();
             const novo = ciclo[atual] || "pendente";
 
+            // Aviso visual de carregamento
+            botao.textContent = "...";
+
             try {
-                const res = await fetch(`${API_URL}/pedidos/${pedidoId}/status`, {
+                // ATENÇÃO: A rota do FastAPI pede o novo_status como Query String (na URL) e não no body JSON!
+                const res = await fetch(`${API_URL}/pedidos/${pedidoId}/status?novo_status=${novo}`, {
                     method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ novo_status: novo })
+                    headers: { "Content-Type": "application/json" }
                 });
-                const data = await res.json();
+
                 if (res.ok) {
-                    botao.textContent = novo;
-                    botao.className = `status-badge ${statusCor(novo)}`;
+                    // Se a chamada funcionou, recarrega a lista toda para o pedido "descer" ou "subir"
+                    carregarPedidos();
                 } else {
-                    alert("Erro: " + data.detail);
+                    const errorData = await res.json();
+                    alert("Erro ao mudar status: " + JSON.stringify(errorData));
+                    botao.textContent = atual; // Volta ao normal se der erro
                 }
             } catch (e) {
-                alert("Erro de conexão.");
+                alert("Erro de conexão ao alterar status.");
+                botao.textContent = atual;
             }
         }
-
         // ==========================================
         // 3. ESTATÍSTICAS
         // ==========================================
