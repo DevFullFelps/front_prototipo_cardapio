@@ -54,29 +54,35 @@ function atualizarStatusLoja() {
 // ==========================================
 async function carregarCardapio() {
     atualizarStatusLoja();
-    atualizarBarraCarrinho(); // Garante que mostre o carrinho se já houver algo salvo
+    atualizarBarraCarrinho();
 
     try {
         const resposta = await fetch(`${API_URL}/produtos?empresa_id=${EMPRESA_ID}`);
         const produtos = await resposta.json();
 
         document.getElementById('nome-lanchonete').innerText = "Barraca do Lanche";
-
-        // Remove o efeito shimmer de carregamento
         document.getElementById('loading-shimmer').classList.add('escondido');
 
         const containerCategoriasNav = document.getElementById('nav-categorias');
         const containerMenuConteudo = document.getElementById('menu-conteudo');
 
-        // Descobre as categorias únicas que vieram do banco automaticamente
-        // Assim, se não tiver 'porção', ele nem cria a aba!
-        const categoriasUnicas = [...new Set(produtos.map(p => p.categoria))];
-        const ordemCategorias = {
-            "Lanches": 1,
-            "Porções": 2,
-            "Bebidas": 3
+        // Dicionário de nomes bonitos para exibição
+        const nomesExibicao = {
+            "lanche": "🍔 Lanches",
+            "porcao": "🍟 Porções",
+            "bebida": "🥤 Bebidas"
         };
 
+        // Ordem fixa das categorias
+        const ordemCategorias = {
+            "lanche": 1,
+            "porcao": 2,
+            "bebida": 3
+        };
+
+        const categoriasUnicas = [...new Set(produtos.map(p => p.categoria))];
+
+        // Ordena as categorias pelo peso definido
         categoriasUnicas.sort((a, b) => {
             return (ordemCategorias[a] || 99) - (ordemCategorias[b] || 99);
         });
@@ -86,21 +92,21 @@ async function carregarCardapio() {
         }
 
         categoriasUnicas.forEach(categoria => {
-            // 1. Cria a pílula de navegação lá no topo
+            // Busca o nome formatado no dicionário, se não existir, usa o nome do banco com primeira letra maiúscula
+            const nomeExibicao = nomesExibicao[categoria] || categoria.charAt(0).toUpperCase() + categoria.slice(1);
             const idSecao = `secao-${categoria.replace(/\s+/g, '-')}`;
-            const nomeFormatado = categoria.charAt(0).toUpperCase() + categoria.slice(1);
 
+            // 1. Cria a pílula de navegação
             containerCategoriasNav.innerHTML += `
-                <a href="#${idSecao}" class="pill-categoria">${nomeFormatado}</a>
+                <a href="#${idSecao}" class="pill-categoria">${nomeExibicao}</a>
             `;
 
             // 2. Cria a seção no HTML
-            // Filtra os produtos dessa categoria
             const produtosDestaCategoria = produtos.filter(p => p.categoria === categoria);
 
             let htmlSecao = `
                 <section id="${idSecao}" class="categoria-section">
-                    <h2>${nomeFormatado}</h2>
+                    <h2>${nomeExibicao}</h2>
                     <div class="grid-produtos">
             `;
 
@@ -108,7 +114,6 @@ async function carregarCardapio() {
                 const fotoPadrao = 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=200';
                 const imagemExibir = produto.imagem_url ? produto.imagem_url : fotoPadrao;
 
-                // Perceba que agora chama abrirModalItem ao invés de direto para o carrinho
                 htmlSecao += `
                     <div class="card-produto">
                         <div class="produto-foto-wrapper">
