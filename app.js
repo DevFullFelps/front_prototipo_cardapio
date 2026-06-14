@@ -71,6 +71,15 @@ async function carregarCardapio() {
         // Descobre as categorias únicas que vieram do banco automaticamente
         // Assim, se não tiver 'porção', ele nem cria a aba!
         const categoriasUnicas = [...new Set(produtos.map(p => p.categoria))];
+        const ordemCategorias = {
+            "lanche": 1,
+            "porcao": 2,
+            "bebida": 3
+        };
+
+        categoriasUnicas.sort((a, b) => {
+            return (ordemCategorias[a] || 99) - (ordemCategorias[b] || 99);
+        });
 
         if (categoriasUnicas.length > 0) {
             containerCategoriasNav.classList.remove('escondido');
