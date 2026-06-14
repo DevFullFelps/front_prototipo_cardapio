@@ -10,328 +10,156 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fa-solid fa-store"></i> Painel do Dono</h1>
-            <a href="index.html" class="voltar"><i class="fa-solid fa-arrow-left"></i> Voltar para o Cardápio</a>
+
+    <header class="header-lanchonete">
+        <div class="banner-fundo"></div>
+        <div class="header-info">
+            <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=200" alt="Logo da Lanchonete"
+                class="logo-lanchonete">
+            <h1 id="nome-lanchonete">Carregando...</h1>
+            <p class="localidade"><i class="fa-solid fa-location-dot"></i> Centro, Sua Cidade - SC</p>
+            <p id="badge-status" class="status-badge"><i class="fa-solid fa-circle"></i> Verificando...</p>
+        </div>
+    </header>
+
+    <nav id="nav-categorias" class="nav-categorias escondido">
+        </nav>
+
+    <main class="container">
+
+        <div id="loading-shimmer" class="shimmer-container">
+            <div class="shimmer-title"></div>
+            <div class="shimmer-card">
+                <div class="shimmer-img"></div>
+                <div class="shimmer-linhas">
+                    <div class="shimmer-linha w-70"></div>
+                    <div class="shimmer-linha w-40"></div>
+                </div>
+            </div>
+            <div class="shimmer-card">
+                <div class="shimmer-img"></div>
+                <div class="shimmer-linhas">
+                    <div class="shimmer-linha w-60"></div>
+                    <div class="shimmer-linha w-30"></div>
+                </div>
+            </div>
         </div>
 
-        <div class="card">
-            <h2><i class="fa-solid fa-utensils"></i> Gerenciar Produtos</h2>
+        <div id="menu-conteudo"></div>
 
-            <form id="form-produto">
-                <div class="form-group">
-                    <label>Nome do Produto</label>
-                    <input type="text" id="nome" placeholder="Ex: X-Salada Especial" required>
-                </div>
+    </main>
 
-                <div class="form-group">
-                    <label>Preço (R$)</label>
-                    <input type="number" id="preco" step="0.01" placeholder="0.00" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Categoria</label>
-                    <select id="categoria" required>
-                        <option value="lanche">Lanche</option>
-                        <option value="porcao">Porção</option> <option value="bebida">Bebida</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Link da Foto (opcional)</label>
-                    <input type="url" id="imagem" placeholder="https://...">
-                </div>
-
-                <button type="submit" class="btn btn-primary">Salvar Produto</button>
-            </form>
-
-            <hr class="section-divider">
-
-            <h3 style="margin-bottom: 12px; font-size: 14px; color: var(--gray);">ITENS CADASTRADOS</h3>
-            <div id="lista-produtos" class="lista-scroll"></div>
+    <div id="barra-carrinho" class="barra-carrinho escondido">
+        <div class="carrinho-content">
+            <span id="qtd-itens-carrinho">0 itens</span>
+            <button id="btn-ver-carrinho" onclick="abrirModalCarrinho()">
+                Ver Carrinho <span id="total-carrinho">R$ 0,00</span>
+            </button>
         </div>
+    </div>
 
-        <div class="card">
-            <h2><i class="fa-solid fa-receipt"></i> Pedidos do Dia</h2>
-            <div id="lista-pedidos"></div>
-        </div>
+    <div id="modal-item" class="modal-container escondido">
+        <div class="modal-content">
+            <h3 id="modal-item-nome">Nome do Lanche</h3>
+            <p id="modal-item-preco" style="color: #475569; font-weight: 600; margin-bottom: 15px;">R$ 0,00</p>
+            
+            <div class="form-group">
+                <label>Alguma observação?</label>
+                <input type="text" id="item-obs" placeholder="Ex: Sem cebola, carne bem passada...">
+            </div>
 
-        <div class="card">
-            <h2><i class="fa-solid fa-chart-bar"></i>Estatísticas</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>🍔 Lanches Mais Pedidos</h3>
-                    <div id="top-lanches"></div>
-                </div>
-                <div class="stat-card">
-                    <h3>🍟 Porções Mais Pedidas</h3>
-                    <div id="top-porcoes"></div>
-                </div>
-                <div class="stat-card">
-                    <h3>🥤 Bebidas Mais Pedidas</h3>
-                    <div id="top-bebidas"></div>
-                </div>
-                <div class="stat-card">
-                    <h3>📉 Lanches Menos Pedidos</h3>
-                    <div id="bottom-lanches"></div>
-                </div>
-                <div class="stat-card">
-                    <h3>📉 Porções Menos Pedidas</h3>
-                    <div id="bottom-porcoes"></div>
-                </div>
-                <div class="stat-card">
-                    <h3>📉 Bebidas Menos Pedidas</h3>
-                    <div id="bottom-bebidas"></div>
-                </div>
+            <div class="modal-botoes">
+                <button class="btn-cancelar" onclick="fecharModalItem()">Cancelar</button>
+                <button class="btn-confirmar-entrega" onclick="confirmarAdicaoItem()">Adicionar</button>
             </div>
         </div>
     </div>
 
-    <script>
-        const API_URL = "https://prototipo-cardapio-api.onrender.com";
-        const EMPRESA_ID = 1;
+    <div id="modal-entrega" class="modal-container escondido">
+        <div class="modal-content modal-scrollable">
+            <h3><i class="fa-solid fa-shopping-basket"></i> Seu Carrinho</h3>
 
-        function formatarData(dataISO) {
-            const d = new Date(dataISO);
-            return d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
-        }
+            <div id="itens-modal-carrinho" class="carrinho-itens-lista"></div>
 
-        function statusCor(status) {
-            switch (status) {
-                case "concluido": return "status-concluido";
-                case "cancelado": return "status-cancelado";
-                default: return "status-pendente";
-            }
-        }
+            <div class="totais-modal-box"
+                style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #e2e8f0; font-size: 14px;">
+                <div style="display: flex; justify-content: space-between; color: #64748b; margin-bottom: 4px;">
+                    <span>Subtotal itens:</span>
+                    <span id="total-modal-itens">R$ 0,00</span>
+                </div>
 
-        async function carregarProdutos() {
-            const container = document.getElementById("lista-produtos");
-            try {
-                const res = await fetch(`${API_URL}/produtos?empresa_id=${EMPRESA_ID}`);
-                const produtos = await res.json();
-                container.innerHTML = "";
+                <div id="linha-taxa-entrega" class="escondido"
+                    style="display: flex; justify-content: space-between; color: #e63946; margin-bottom: 6px; font-weight: 500;">
+                    <span>Taxa de entrega:</span>
+                    <span>R$ 7,00</span>
+                </div>
 
-                if (produtos.length === 0) {
-                    container.innerHTML = "<p class='empty-state'>Nenhum item cadastrado.</p>";
-                    return;
-                }
+                <div
+                    style="display: flex; justify-content: space-between; font-size: 16px; color: #1e293b; font-weight: 700; margin-top: 6px; border-top: 1px dashed #e2e8f0; padding-top: 6px;">
+                    <span>Total Geral:</span>
+                    <span id="total-modal-geral">R$ 0,00</span>
+                </div>
+            </div>
 
-                produtos.forEach(p => {
-                    const div = document.createElement("div");
-                    div.className = "item-card";
-                    div.innerHTML = `
-                        <div class="item-info">
-                            <input type="text" class="input-nome" id="nome-${p.id}" value="${p.nome}">
-                            <input type="number" class="input-preco" id="preco-${p.id}" step="0.01" value="${p.preco.toFixed(2)}">
-                        </div>
-                        <div class="acoes">
-                            <button class="btn-acao btn-editar" onclick="salvarProduto(${p.id})" title="Salvar">
-                                <i class="fa-solid fa-check"></i>
-                            </button>
-                            <button class="btn-acao btn-excluir" onclick="excluirProduto(${p.id})" title="Excluir">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    `;
-                    container.appendChild(div);
-                });
-            } catch (e) {
-                container.innerHTML = "<p class='empty-state'>Erro ao carregar produtos.</p>";
-            }
-        }
+            <div class="opcao-envio-container">
+                <label>Como deseja receber?</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="tipo_envio" value="retirada" checked onchange="alternarCampos()">
+                        <span><i class="fa-solid fa-store"></i> Retirada</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="tipo_envio" value="entrega" onchange="alternarCampos()">
+                        <span><i class="fa-solid fa-truck"></i> Entrega</span>
+                    </label>
+                </div>
+            </div>
 
-        document.getElementById("form-produto").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const dados = {
-                nome: document.getElementById("nome").value.trim(),
-                preco: parseFloat(document.getElementById("preco").value),
-                categoria: document.getElementById("categoria").value,
-                imagem_url: document.getElementById("imagem").value.trim() || null,
-                empresa_id: EMPRESA_ID
-            };
+            <div id="campos-endereco" class="escondido">
+                <h4 style="font-size: 14px; color: #475569; margin: 15px 0 8px 0; border-top: 1px solid #e2e8f0; padding-top: 10px;">Endereço de Entrega</h4>
+                <div class="form-group-row">
+                    <div class="form-group">
+                        <label>Rua</label>
+                        <input type="text" id="cliente-rua" placeholder="Ex: Rua das Flores">
+                    </div>
+                    <div class="form-group" style="width: 30%;">
+                        <label>Número</label>
+                        <input type="text" id="cliente-numero" placeholder="123">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Bairro</label>
+                    <input type="text" id="cliente-bairro" placeholder="Ex: Centro">
+                </div>
+            </div>
 
-            try {
-                const res = await fetch(`${API_URL}/produtos`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(dados)
-                });
-                if (res.ok) {
-                    document.getElementById("form-produto").reset();
-                    carregarProdutos();
-                } else {
-                    alert("Erro ao cadastrar produto.");
-                }
-            } catch (e) {
-                alert("Erro de conexão.");
-            }
-        });
+            <div class="opcao-envio-container" style="border-top: 1px solid #e2e8f0; padding-top: 15px; margin-top: 15px;">
+                <label>Forma de Pagamento</label>
+                <select id="forma-pagamento" onchange="alternarTroco()" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; margin-top: 5px;">
+                    <option value="Pix">Pix</option>
+                    <option value="Cartão">Cartão (Levar maquininha)</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                </select>
+            </div>
 
-        async function salvarProduto(id) {
-            const nome = document.getElementById(`nome-${id}`).value.trim();
-            const preco = parseFloat(document.getElementById(`preco-${id}`).value);
-            if (!nome || isNaN(preco)) return alert("Preencha os campos corretamente.");
+            <div id="campo-troco" class="form-group escondido" style="margin-top: 10px;">
+                <label>Troco para quanto?</label>
+                <input type="text" id="cliente-troco" placeholder="Ex: R$ 50,00">
+            </div>
 
-            try {
-                const res = await fetch(`${API_URL}/produtos/${id}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ nome, preco })
-                });
-                if (res.ok) {
-                    alert("✅ Produto updated!");
-                } else {
-                    alert("Erro ao atualizar.");
-                }
-            } catch (e) {
-                alert("Erro de conexão.");
-            }
-        }
+            <div class="form-group" style="margin-top: 15px;">
+                <label>Observação Geral do Pedido</label>
+                <input type="text" id="cliente-obs" placeholder="Ex: Ap 202, interfone quebrado">
+            </div>
 
-        async function excluirProduto(id) {
-            if (!confirm("Remover este item permanentemente?")) return;
-            try {
-                const res = await fetch(`${API_URL}/produtos/${id}`, { method: "DELETE" });
-                if (res.ok) {
-                    carregarProdutos();
-                } else {
-                    alert("Erro ao excluir.");
-                }
-            } catch (e) {
-                alert("Erro de conexão.");
-            }
-        }
+            <div class="modal-botoes">
+                <button class="btn-cancelar" onclick="fecharModalEntrega()">Voltar</button>
+                <button class="btn-confirmar-entrega" onclick="enviarPedidoFinal()">Confirmar Pedido</button>
+            </div>
+        </div>
+    </div>
 
-        async function carregarPedidos() {
-            const container = document.getElementById("lista-pedidos");
-            const hoje = new Date().toISOString().split("T")[0];
-
-            try {
-                const res = await fetch(`${API_URL}/pedidos?empresa_id=${EMPRESA_ID}&data=${hoje}`);
-                const pedidos = await res.json();
-                container.innerHTML = "";
-
-                if (pedidos.length === 0) {
-                    container.innerHTML = "<p class='empty-state'>Nenhum pedido hoje.</p>";
-                    return;
-                }
-
-                const prioridadeStatus = { "pendente": 0, "cancelado": 1, "concluido": 2 };
-
-                pedidos.sort((a, b) => {
-                    const statusDiff = prioridadeStatus[a.status] - prioridadeStatus[b.status];
-                    if (statusDiff !== 0) return statusDiff;
-                    return new Date(a.data_criacao) - new Date(b.data_criacao);
-                });
-
-                pedidos.forEach(p => {
-                    const hora = formatarData(p.data_criacao);
-                    const pagamento = p.metodo_pagamento ? p.metodo_pagamento : "Não informado";
-                    const entrega = p.tipo_entrega === "retirada" ? "Retirada" : "Entrega";
-
-                    let itensHTML = p.itens.map(i => `
-                        <div>
-                            <strong>${i.quantidade}x</strong> ${i.nome}
-                            ${i.observacao ? `<div class="pedido-obs">Obs: ${i.observacao}</div>` : ""}
-                        </div>
-                    `).join("");
-
-                    if (p.observacao_geral) {
-                        itensHTML += `<div class="pedido-obs" style="margin-top:8px; color: #dc2626;">📝 Obs. Geral: ${p.observacao_geral}</div>`;
-                    }
-
-                    const div = document.createElement("div");
-                    div.className = "pedido-card";
-                    div.innerHTML = `
-                        <div class="pedido-header">
-                            <div>
-                                <span class="pedido-id">#${p.id}</span>
-                                <span class="pedido-hora"><i class="fa-regular fa-clock"></i> ${hora}</span>
-                            </div>
-                            <button class="status-badge ${statusCor(p.status)}" onclick="alterarStatus(${p.id}, this)">
-                                ${p.status}
-                            </button>
-                        </div>
-                        <div class="pedido-info"><i class="fa-solid fa-money-bill"></i> <strong>Total:</strong> R$ ${p.total.toFixed(2)}</div>
-                        <div class="pedido-info"><i class="fa-solid fa-credit-card"></i> <strong>Pagamento:</strong> ${pagamento}</div>
-                        <div class="pedido-info"><i class="fa-solid fa-truck"></i> <strong>Entrega:</strong> ${entrega}</div>
-                        <div class="pedido-itens">${itensHTML}</div>
-                    `;
-                    container.appendChild(div);
-                });
-            } catch (e) {
-                container.innerHTML = "<p class='empty-state'>Erro ao carregar pedidos.</p>";
-            }
-        }
-
-        async function alterarStatus(pedidoId, botao) {
-            const ciclo = { "pendente": "concluido", "concluido": "cancelado", "cancelado": "pendente" };
-            const atual = botao.textContent.trim().toLowerCase();
-            const novo = ciclo[atual] || "pendente";
-
-            botao.textContent = "...";
-
-            try {
-                const res = await fetch(`${API_URL}/pedidos/${pedidoId}/status?novo_status=${novo}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" }
-                });
-
-                if (res.ok) {
-                    carregarPedidos();
-                } else {
-                    const errorData = await res.json();
-                    alert("Erro ao mudar status: " + JSON.stringify(errorData));
-                    botao.textContent = atual;
-                }
-            } catch (e) {
-                alert("Erro de conexão ao alterar status.");
-                botao.textContent = atual;
-            }
-        }
-
-        async function carregarEstatisticas() {
-            const containerTopLanches = document.getElementById("top-lanches");
-            const containerTopPorcoes = document.getElementById("top-porcoes"); // MAPEADO
-            const containerTopBebidas = document.getElementById("top-bebidas");
-            const containerBottomLanches = document.getElementById("bottom-lanches");
-            const containerBottomPorcoes = document.getElementById("bottom-porcoes"); // MAPEADO
-            const containerBottomBebidas = document.getElementById("bottom-bebidas");
-
-            try {
-                const res = await fetch(`${API_URL}/dashboard/metricas?empresa_id=${EMPRESA_ID}`);
-                const dados = await res.json();
-
-                function renderList(container, items) {
-                    if (!items || items.length === 0) {
-                        container.innerHTML = "<p class='empty-state'>Sem dados</p>";
-                        return;
-                    }
-                    container.innerHTML = items.map(i => `
-                        <div class="stat-item">
-                            <span class="stat-nome">${i.nome}</span>
-                            <span class="stat-qtd">${i.quantidade_vendida}x</span>
-                        </div>
-                    `).join("");
-                }
-
-                renderList(containerTopLanches, dados.lanches_mais_vendidos);
-                renderList(containerTopPorcoes, dados.porcoes_mais_vendidas); // ADICIONADO
-                renderList(containerTopBebidas, dados.bebidas_mais_vendidas);
-                renderList(containerBottomLanches, dados.lanches_menos_vendidos);
-                renderList(containerBottomPorcoes, dados.porcoes_menos_vendidas); // ADICIONADO
-                renderList(containerBottomBebidas, dados.bebidas_menos_vendidas);
-            } catch (e) {
-                containerTopLanches.innerHTML = "<p class='empty-state'>Erro ao carregar.</p>";
-            }
-        }
-
-        carregarProdutos();
-        carregarPedidos();
-        carregarEstatisticas();
-        setInterval(carregarPedidos, 30000);
-    </script>
+    <script src="app.js"></script>
 </body>
 
 </html>
