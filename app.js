@@ -117,6 +117,7 @@ async function carregarCardapio() {
                         </div>
                         <div class="produto-info">
                             <h3>${produto.nome}</h3>
+                            <p class="txt-descricao-vitrine">${produto.descricao || ''}</p>
                             <p class="produto-preco">R$ ${produto.preco.toFixed(2)}</p>
                         </div>
                         <button class="btn-adicionar" onclick="abrirModalItem(${produto.id}, '${produto.nome}', ${produto.preco})">
@@ -148,9 +149,9 @@ function abrirModalItem(id, nome, preco) {
 
     itemTemporario = { id, nome, preco };
     document.getElementById('modal-item-nome').innerText = nome;
+    document.getElementById("modal-item-descricao").innerText = produto.descricao || "";
     document.getElementById('modal-item-preco').innerText = `R$ ${preco.toFixed(2)}`;
-    document.getElementById('item-obs').value = ""; // Limpa a observação anterior
-
+    document.getElementById('item-obs').value = ""; 
     document.getElementById('modal-item').classList.remove('escondido');
 }
 
