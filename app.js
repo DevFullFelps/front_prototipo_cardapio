@@ -149,6 +149,7 @@ function abrirModalItem(id, nome, preco) {
         return;
     }
 
+
     itemTemporario = { id, nome, preco };
     document.getElementById('modal-item-nome').innerText = nome;
     const produtoEncontrado = produtosDoCardapio.find(p => p.id === id);
@@ -187,6 +188,25 @@ function confirmarAdicaoItem() {
 
     fecharModalItem();
     atualizarBarraCarrinho();
+}
+
+function removerItemCarrinho(cartKey){
+    const itemExistente = carrinho.find(item => item.cartKey === cartKey);
+
+    if(!itemExistente) return;
+
+    if(itemExistente.quantidade > 1){
+        itemExistente.quuantidade -= 1;
+    } else{
+        carrinho = carrinho.filter(item => item.cartKey !== cartKey);
+    }
+
+    atualizarBarraCarrinho();
+    if(carrinho.length === 0){
+        fecharModalEntrega()
+    } else {
+        abrirModalCarrinho()
+    }
 }
 
 function atualizarBarraCarrinho() {
@@ -230,12 +250,17 @@ function abrirModalCarrinho() {
         const htmlObs = item.observacao_item ? `<br><small style="color: #ef4444; font-size: 11px;">Obs: ${item.observacao_item}</small>` : '';
 
         containerItensModal.innerHTML += `
-            <div style="font-size: 14px; margin-bottom: 8px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 8px;">
-                <div style="display: flex; justify-content: space-between;">
+            <div style="font-size: 14px; margin-bottom: 8px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
                     <span><strong>${item.quantidade}x</strong> ${item.nome}</span>
-                    <span style="color: #475569;">R$ ${(item.preco * item.quantidade).toFixed(2)}</span>
+                    ${htmlObs}
                 </div>
-                ${htmlObs}
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="color: #475569;">R$ ${(item.preco * item.quantidade).toFixed(2)}</span>
+                    <button onclick="removerItemCarrinho('${item.cartKey}')" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px; font-size: 16px;">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
             </div>
         `;
     });
