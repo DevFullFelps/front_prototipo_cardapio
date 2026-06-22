@@ -102,7 +102,7 @@ body {
 }
 
 .categoria-section h2 {
-    background-color: #c7d1db;
+    background-color: #9ba5af;
     font-size: 16px;
     color: #64748b; 
     text-transform: uppercase; 
@@ -113,6 +113,8 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+    padding: 20px;
+    border-radius: 15px;
 }
 
 .grid-produtos {
