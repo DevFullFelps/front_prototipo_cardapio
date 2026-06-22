@@ -404,7 +404,6 @@ async function enviarPedidoFinal() {
             console.error("Erro backend:", response.status, errText);
         }
     } catch (erro) {
-        // AQUI ESTÁ O CATCH QUE FALTAVA!
         console.error("Erro conexão:", erro);
         alert("Erro na conexão com o servidor. Verifique se o backend está online.");
     }

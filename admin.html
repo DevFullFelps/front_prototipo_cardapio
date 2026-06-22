@@ -385,8 +385,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Link da Foto (opcional)</label>
-                    <input type="url" id="imagem" placeholder="https://...">
+                    <label>Imagem do Produto (opcional)</label>
+                    <input type="file" id="imagem" accept="image/*">
                 </div>
 
                 <button type="submit" class="btn btn-primary">Salvar Produto</button>
@@ -489,11 +489,15 @@
 
         document.getElementById("form-produto").addEventListener("submit", async (e) => {
             e.preventDefault();
+
+            const inputImage = document.getElementById("imagem");
+            const imagemBase64 = await lerImagemcomoBase64(inputImage)
+
             const dados = {
                 nome: document.getElementById("nome").value.trim(),
                 preco: parseFloat(document.getElementById("preco").value),
                 categoria: document.getElementById("categoria").value,
-                imagem_url: document.getElementById("imagem").value.trim() || null,
+                imagem_url: imagemBase64 || null,
                 empresa_id: EMPRESA_ID
             };
 
@@ -671,6 +675,22 @@
             } catch (e) {
                 containerTopLanches.innerHTML = "<p class='empty-state'>Erro ao carregar.</p>";
             }
+        }
+
+        function lerImagemcomoBase64(inputElement){
+            return new Promise((resolve, reject) =>{
+                const file = inputElement.files[0];
+
+                if (!file){
+                    resolve(null);
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
         }
 
         carregarProdutos();
