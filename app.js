@@ -13,6 +13,7 @@ const CONFIG_LOJA = {
 let carrinho = JSON.parse(localStorage.getItem(`carrinho_lanchonete_${EMPRESA_ID}`)) || [];
 
 let itemTemporario = null;
+let produtosDoCardapio = [];
 
 // ==========================================
 // 1. LÓGICA DE FUNCIONAMENTO (STATUS DA LOJA)
@@ -57,6 +58,7 @@ async function carregarCardapio() {
     try {
         const resposta = await fetch(`${API_URL}/produtos?empresa_id=${EMPRESA_ID}`);
         const produtos = await resposta.json();
+        produtosDoCardapio = produtos;
 
         document.getElementById('nome-lanchonete').innerText = "Barraca do Lanche";
         document.getElementById('loading-shimmer').classList.add('escondido');
@@ -149,7 +151,8 @@ function abrirModalItem(id, nome, preco) {
 
     itemTemporario = { id, nome, preco };
     document.getElementById('modal-item-nome').innerText = nome;
-    document.getElementById("modal-item-descricao").innerText = produto.descricao || "";
+    const produtoEncontrado = produtosDoCardapio.find(p => p.id === id);
+    document.getElementById("modal-item-descricao").innerText = produtoEncontrado ? (produtoEncontrado.descricao || "") : "";
     document.getElementById('modal-item-preco').innerText = `R$ ${preco.toFixed(2)}`;
     document.getElementById('item-obs').value = ""; 
     document.getElementById('modal-item').classList.remove('escondido');
@@ -165,8 +168,6 @@ function confirmarAdicaoItem() {
 
     const obs = document.getElementById('item-obs').value.trim();
 
-    // Cria uma chave única para o item. Se for o mesmo lanche com a mesma observação, soma a quantidade.
-    // Se a observação for diferente, separa no carrinho!
     const cartKey = `${itemTemporario.id}-${obs.toLowerCase()}`;
 
     const itemExistente = carrinho.find(item => item.cartKey === cartKey);
