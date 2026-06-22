@@ -7,13 +7,11 @@ const EMPRESA_ID = 1;
 // Configuração de Horário do Cliente
 const CONFIG_LOJA = {
     abre: "10:00",
-    fecha: "23:59" // Formato 24h
+    fecha: "23:59" 
 };
 
-// Carrega o carrinho salvo no celular do cliente (LocalStorage)
 let carrinho = JSON.parse(localStorage.getItem(`carrinho_lanchonete_${EMPRESA_ID}`)) || [];
 
-// Variáveis para o modal de observação do item
 let itemTemporario = null;
 
 // ==========================================
@@ -30,10 +28,10 @@ function lojaEstaAberta() {
     const minFecha = hFecha * 60 + mFecha;
 
     if (minAbre < minFecha) {
-        // Ex: 10:00 às 22:00
+        
         return minutosAtuais >= minAbre && minutosAtuais <= minFecha;
     } else {
-        // Ex: 18:00 às 02:00 (Vira a madrugada)
+        
         return minutosAtuais >= minAbre || minutosAtuais <= minFecha;
     }
 }
@@ -50,7 +48,7 @@ function atualizarStatusLoja() {
 }
 
 // ==========================================
-// 2. CARREGAR DADOS DA LANCHONETE E PRODUTOS (DINÂMICO)
+// 2. CARREGAR DADOS DA LANCHONETE E PRODUTOS 
 // ==========================================
 async function carregarCardapio() {
     atualizarStatusLoja();
@@ -66,14 +64,14 @@ async function carregarCardapio() {
         const containerCategoriasNav = document.getElementById('nav-categorias');
         const containerMenuConteudo = document.getElementById('menu-conteudo');
 
-        // Dicionário de nomes bonitos para exibição
+    
         const nomesExibicao = {
             "lanche": "🍔 Lanches",
             "porcao": "🍟 Porções",
             "bebida": "🥤 Bebidas"
         };
 
-        // Ordem fixa das categorias
+      
         const ordemCategorias = {
             "lanche": 1,
             "porcao": 2,
@@ -82,7 +80,7 @@ async function carregarCardapio() {
 
         const categoriasUnicas = [...new Set(produtos.map(p => p.categoria))];
 
-        // Ordena as categorias pelo peso definido
+        
         categoriasUnicas.sort((a, b) => {
             return (ordemCategorias[a] || 99) - (ordemCategorias[b] || 99);
         });
@@ -92,16 +90,14 @@ async function carregarCardapio() {
         }
 
         categoriasUnicas.forEach(categoria => {
-            // Busca o nome formatado no dicionário, se não existir, usa o nome do banco com primeira letra maiúscula
+            
             const nomeExibicao = nomesExibicao[categoria] || categoria.charAt(0).toUpperCase() + categoria.slice(1);
             const idSecao = `secao-${categoria.replace(/\s+/g, '-')}`;
 
-            // 1. Cria a pílula de navegação
             containerCategoriasNav.innerHTML += `
                 <a href="#${idSecao}" class="pill-categoria">${nomeExibicao}</a>
             `;
 
-            // 2. Cria a seção no HTML
             const produtosDestaCategoria = produtos.filter(p => p.categoria === categoria);
 
             let htmlSecao = `
