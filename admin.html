@@ -370,7 +370,11 @@
                     <label>Nome do Produto</label>
                     <input type="text" id="nome" placeholder="Ex: X-Salada Especial" required>
                 </div>
-
+                <div class="form-group">
+                    <label>Descrição / Especificação (opcional)</label>
+                    <input type="text" id="descricao" placeholder="Ex: Hambúrguer de 250g, artesanal, blend da casa">
+                </div>
+        
                 <div class="form-group">
                     <label>Preço (R$)</label>
                     <input type="number" id="preco" step="0.01" placeholder="0.00" required>
@@ -380,7 +384,8 @@
                     <label>Categoria</label>
                     <select id="categoria" required>
                         <option value="lanche">Lanche</option>
-                        <option value="porcao">Porção</option> <option value="bebida">Bebida</option>
+                        <option value="porcao">Porção</option>
+                        <option value="bebida">Bebida</option>
                     </select>
                 </div>
 
@@ -469,6 +474,7 @@
                     div.innerHTML = `
                         <div class="item-info">
                             <input type="text" class="input-nome" id="nome-${p.id}" value="${p.nome}">
+                            <input type="text" class="input-descricao" id="descricao-${p.id}" value="${p.descricao || ''}" placeholder="Sem descrição" style="font-size: 12px; color: #64748b; margin-top: 4px;">
                             <input type="number" class="input-preco" id="preco-${p.id}" step="0.01" value="${p.preco.toFixed(2)}">
                         </div>
                         <div class="acoes">
@@ -498,7 +504,8 @@
                 preco: parseFloat(document.getElementById("preco").value),
                 categoria: document.getElementById("categoria").value,
                 imagem_url: imagemBase64 || null,
-                empresa_id: EMPRESA_ID
+                empresa_id: EMPRESA_ID,
+                descricao: document.getElementById("descricao").value.trim() || null
             };
 
             try {
@@ -521,13 +528,14 @@
         async function salvarProduto(id) {
             const nome = document.getElementById(`nome-${id}`).value.trim();
             const preco = parseFloat(document.getElementById(`preco-${id}`).value);
+            const descricao = document.getElementById(`descicao-${id}`).value.trim();
             if (!nome || isNaN(preco)) return alert("Preencha os campos corretamente.");
 
             try {
                 const res = await fetch(`${API_URL}/produtos/${id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ nome, preco })
+                    body: JSON.stringify({ nome, preco, descricao })
                 });
                 if (res.ok) {
                     alert("✅ Produto updated!");
@@ -643,10 +651,10 @@
 
         async function carregarEstatisticas() {
             const containerTopLanches = document.getElementById("top-lanches");
-            const containerTopPorcoes = document.getElementById("top-porcoes"); 
+            const containerTopPorcoes = document.getElementById("top-porcoes");
             const containerTopBebidas = document.getElementById("top-bebidas");
             const containerBottomLanches = document.getElementById("bottom-lanches");
-            const containerBottomPorcoes = document.getElementById("bottom-porcoes"); 
+            const containerBottomPorcoes = document.getElementById("bottom-porcoes");
             const containerBottomBebidas = document.getElementById("bottom-bebidas");
 
             try {
@@ -677,11 +685,11 @@
             }
         }
 
-        function lerImagemcomoBase64(inputElement){
-            return new Promise((resolve, reject) =>{
+        function lerImagemcomoBase64(inputElement) {
+            return new Promise((resolve, reject) => {
                 const file = inputElement.files[0];
 
-                if (!file){
+                if (!file) {
                     resolve(null);
                     return;
                 }
