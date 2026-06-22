@@ -102,6 +102,7 @@ body {
 }
 
 .categoria-section h2 {
+    background-color: #c7d1db;
     font-size: 16px;
     color: #64748b; 
     text-transform: uppercase; 
