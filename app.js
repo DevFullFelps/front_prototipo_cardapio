@@ -196,7 +196,7 @@ function removerItemCarrinho(cartKey){
     if(!itemExistente) return;
 
     if(itemExistente.quantidade > 1){
-        itemExistente.quuantidade -= 1;
+        itemExistente.quantidade -= 1;
     } else{
         carrinho = carrinho.filter(item => item.cartKey !== cartKey);
     }
